@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>archiv'mcu — MCU Archive</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">THEMCIA</div>
+    <div class="creator">k0rkoww × heiwa'stream</div>
+    <p class="bio">
+      Retrouvez tous les films et séries du MCU dans l’ordre chronologique,<br>
+      en bonne qualité, prêts à regarder.
+    </p>
+  </header>
+
+  <!-- DISCORD -->
+  <div class="discord-section">
+    <a href="https://discord.gg/FcSMrZezJ" target="_blank" class="discord-btn">
+      <span class="discord-icon">🎧</span>
+      Rejoindre le Discord HeiwaStream
+    </a>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">Tout</button>
+    <button class="filter-btn" data-filter="movie">Films</button>
+    <button class="filter-btn" data-filter="series">Séries</button>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid" id="grid"></div>
+
+  <!-- MODAL SÉRIE -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="close-btn" id="closeModal">×</button>
+      <h2 id="modalTitle"></h2>
+      <div class="episodes" id="episodesList"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>by k0rkoww × heiwa'stream</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
