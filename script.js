@@ -140,7 +140,7 @@ const MARVEL = [
   { title: "The Fantastic Four: First Steps", year: 2025, type: "movie", phase: "Phase 6", earth: "À venir",
     url: "https://heiwastream.fr/watch/movie/617126", poster: "https://image.tmdb.org/t/p/w500/rNc4KARs6fVa4axzvuv3NfUiNy1.jpg" },
   { title: "Spider-Man: Brand New Day", year: 2026, type: "movie", phase: "Phase 6", earth: "Terre-616",
-    url: "https://heiwastream.fr/watch/movie/969681", poster: "https://image.tmdb.org/t/p/w500/tV712n7bMaRuaKyltFl65HPNRiP.jpg" },
+    url: https://ancorflix.lol/watch/movie/969681", poster: "https://image.tmdb.org/t/p/w500/tV712n7bMaRuaKyltFl65HPNRiP.jpg" },
   { title: "Avengers: Doomsday", year: 2026, type: "movie", phase: "Phase 6", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/1003596", poster: "https://image.tmdb.org/t/p/w500/bph5UiAOKLLjla10YuCyKWfKYGG.jpg", note: "pas encore disponible" },
 ];
