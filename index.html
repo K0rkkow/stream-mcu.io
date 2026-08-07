@@ -7,50 +7,380 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230b0b12' width='100' height='100'/><text x='50' y='75' font-size='70' font-weight='bold' fill='%23e62429' text-anchor='middle' font-family='Orbitron'>⚡</text></svg>">
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+<style>
+/* ============ GATE D'AUTHENTIFICATION (intégrée) ============ */
+.auth-gate{
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at 30% 15%, rgba(230,36,41,0.15), transparent 55%),
+    repeating-radial-gradient(circle at 0 0, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 14px),
+    linear-gradient(180deg, #100d12 0%, #0b0b12 100%);
+  overflow: auto;
+}
+body.authed .auth-gate{ display: none; }
+body:not(.authed){ overflow: hidden; }
+
+.gate-glow{
+  position: fixed; top: -20%; left: 50%;
+  width: 140%; height: 90%;
+  transform: translateX(-50%) rotate(6deg);
+  background: linear-gradient(180deg, rgba(230,36,41,0.16), transparent 65%);
+  filter: blur(12px);
+  pointer-events: none;
+  animation: gateSweep 8s ease-in-out infinite;
+}
+@keyframes gateSweep{
+  0%,100%{ opacity:.4;  transform: translateX(-52%) rotate(5deg); }
+  50%    { opacity:.8;  transform: translateX(-48%) rotate(9deg); }
+}
+
+.gate-card{
+  position: relative; z-index: 2;
+  width: 100%; max-width: 400px;
+  text-align: center;
+}
+.gate-eyebrow{
+  font-family: 'Orbitron', monospace;
+  font-size: 11px; letter-spacing: .35em;
+  color: #e62429; text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.gate-title{
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(44px, 8vw, 64px);
+  line-height: .92; letter-spacing: .03em;
+  color: #f5f2ec; font-style: italic;
+  text-shadow: 0 0 28px rgba(230,36,41,.3), 3px 3px 0 rgba(230,36,41,.35);
+}
+.gate-title span{ color: #e62429; }
+.gate-sub{ margin-top: 14px; color: #8a8790; font-size: 13px; line-height: 1.6; }
+.gate-badges{
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px;
+}
+.gate-badges span{
+  font-family: monospace; font-size: 10px; letter-spacing: .1em;
+  color: #8a8790; border: 1px solid #2c2730; background: rgba(230,36,41,.06);
+  padding: 4px 9px; border-radius: 3px; text-transform: uppercase;
+}
+.gate-tabs{
+  display: flex; gap: 2px; margin-top: 26px;
+  background: #17151a; border: 1px solid #2c2730; border-radius: 8px; padding: 4px;
+}
+.gate-tabs button{
+  flex: 1; padding: 10px 0; background: transparent; border: none; cursor: pointer;
+  color: #8a8790; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px;
+  border-radius: 6px; transition: all .18s ease;
+}
+.gate-tabs button.active{ background: #e62429; color: #160b0c; }
+
+.auth-gate form{ display: none; text-align: left; margin-top: 20px; }
+.auth-gate label{
+  display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: #8a8790; margin: 0 0 7px;
+}
+.auth-gate .gate-field{ margin-bottom: 14px; }
+.auth-gate input[type="email"], .auth-gate input[type="password"]{
+  width: 100%; padding: 12px 13px;
+  background: #17151a; border: 1px solid #2c2730; border-radius: 8px;
+  color: #f5f2ec; font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.auth-gate input:focus{
+  border-color: #e62429; box-shadow: 0 0 0 3px rgba(230,36,41,.15);
+}
+.auth-gate .gate-pw-row{ position: relative; }
+.gate-pw-toggle{
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: #8a8790; font-size: 10px; font-family: monospace; letter-spacing: .05em;
+}
+.gate-pw-toggle:hover{ color: #e62429; }
+.gate-submit{
+  width: 100%; padding: 14px 0; margin-top: 6px;
+  background: #e62429; color: #160b0c; border: none; border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .02em;
+  cursor: pointer; transition: background .15s ease, transform .1s ease;
+}
+.gate-submit:hover{ background: #ff4d63; }
+.gate-submit:active{ transform: scale(.99); }
+.gate-submit:disabled{ background: #971827; cursor: not-allowed; opacity: .7; }
+
+.auth-gate .msg{
+  margin-top: 14px; font-size: 13px; padding: 11px 13px; border-radius: 8px;
+  display: none; line-height: 1.5;
+}
+.auth-gate .msg.error{
+  display: block; background: rgba(196,67,43,.12); border: 1px solid rgba(196,67,43,.4); color: #f0a596;
+}
+.auth-gate .msg.success{
+  display: block; background: rgba(230,36,41,.1); border: 1px solid rgba(230,36,41,.4); color: #e62429;
+}
+.gate-status{
+  margin-top: 18px; font-family: monospace; font-size: 12px;
+  color: #8a8790; letter-spacing: .08em;
+}
+.gate-status .dot{
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: #e62429; margin-right: 8px; box-shadow: 0 0 8px #e62429;
+  animation: blink 1s ease-in-out infinite;
+}
+@keyframes blink{ 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+.gate-foot{
+  margin-top: 20px; font-size: 11px; color: #55525f; line-height: 1.6; text-align: center;
+}
+.gate-foot code{ font-family: monospace; color: #8a8790; }
+
+.logout-btn{
+  display: inline-block; margin-top: 10px; padding: 6px 12px;
+  background: none; border: 1px solid #2c2730; border-radius: 6px;
+  color: #8a8790; font-family: 'Inter', sans-serif; font-size: 11px; cursor: pointer;
+  transition: all .15s ease;
+}
+.logout-btn:hover{ color: #e62429; border-color: #e62429; }
+
+@media (max-width: 480px){ .gate-card{ max-width: 340px; } }
+@media (prefers-reduced-motion: reduce){ .gate-glow, .gate-status .dot{ animation: none; } }
+</style>
 </head>
 <body>
+
+<!-- ============ GATE D'AUTHENTIFICATION ============ -->
+<div class="auth-gate" id="authGate">
+  <div class="gate-glow"></div>
+  <div class="gate-card">
+    <div class="gate-eyebrow">Accès héros seulement</div>
+    <div class="gate-title">ENTRE DANS<br><span>L'UNIVERS</span></div>
+    <p class="gate-sub">Identifie-toi pour rejoindre ARCH'VERSE. La séance démarre juste après le générique.</p>
+    <div class="gate-badges">
+      <span>Phase en cours</span><span>Accès illimité</span><span>4K</span>
+    </div>
+
+    <div class="gate-tabs">
+      <button type="button" class="active" id="gateTabLogin">Connexion</button>
+      <button type="button" id="gateTabSignup">Créer un compte</button>
+    </div>
+
+    <form id="authForm" novalidate>
+      <div class="gate-field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="toi@exemple.com" autocomplete="email" required />
+      </div>
+      <div class="gate-field">
+        <label for="password">Mot de passe</label>
+        <div class="gate-pw-row">
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" minlength="8" required />
+          <button type="button" class="gate-pw-toggle" id="pwToggle">AFFICHER</button>
+        </div>
+      </div>
+      <button type="submit" class="gate-submit" id="submitBtn">Entrer dans la salle</button>
+      <div class="msg" id="msgBox"></div>
+    </form>
+
+    <p class="gate-status" id="gateStatus"><span class="dot"></span>Vérification de session…</p>
+    <p class="gate-foot">
+      Connexion chiffrée via Supabase Auth.<br>Aucun mot de passe n'est stocké en clair.
+    </p>
+  </div>
+</div>
+
+<!-- ============ CONTENU ARCH'VERSE ============ -->
 <div class="spider-web top-left"></div>
 <div class="spider-web top-right"></div>
+
 <!-- HEADER -->
 <header>
-<div class="mjolnir">⚡</div>
-<div class="logo">ARCH'VERSE</div>
-<div class="logo-sub">⏣ MCU Chronologique ⏣</div>
-<div class="creator">k0rkoww × heiwa'stream</div>
-<p class="bio">
-Explorez l'univers cinématographique Marvel <span class="arc-dot"></span><br>
-Films & séries en ordre chronologique, prêts à regarder.
-</p>
-<div class="header-stars">
-<span>✦</span><span>★</span><span>✦</span><span>★</span><span>✦</span>
-</div>
+  <div class="mjolnir">⚡</div>
+  <div class="logo">ARCH'VERSE</div>
+  <div class="logo-sub">⏣ MCU Chronologique ⏣</div>
+  <div class="creator">k0rkoww × heiwa'stream</div>
+  <p class="bio">
+    Explorez l'univers cinématographique Marvel <span class="arc-dot"></span><br>
+    Films & séries en ordre chronologique, prêts à regarder.
+  </p>
+  <div class="header-stars">
+    <span>✦</span><span>★</span><span>✦</span><span>★</span><span>✦</span>
+  </div>
 </header>
+
 <!-- DISCORD -->
 <div class="discord-section">
-<a href="https://discord.gg/FcSMrZezJ" target="_blank" class="discord-btn">
-<span class="discord-icon">🎧</span>
-Rejoindre le Discord HeiwaStream
-</a>
+  <a href="https://discord.gg/FcSMrZezJ" target="_blank" class="discord-btn">
+    <span class="discord-icon">🎧</span>
+    Rejoindre le Discord HeiwaStream
+  </a>
 </div>
+
 <!-- FILTERS -->
 <div class="filters">
-<button class="filter-btn active" data-filter="all">✦ Tout</button>
-<button class="filter-btn" data-filter="movie">▸ Films</button>
-<button class="filter-btn" data-filter="series">▸ Séries</button>
+  <button class="filter-btn active" data-filter="all">✦ Tout</button>
+  <button class="filter-btn" data-filter="movie">▸ Films</button>
+  <button class="filter-btn" data-filter="series">▸ Séries</button>
 </div>
+
 <!-- GRID -->
 <div class="grid" id="grid"></div>
+
 <!-- MODAL SÉRIE -->
 <div class="modal" id="modal">
-<div class="modal-content">
-<button class="close-btn" id="closeModal">×</button>
-<h2 id="modalTitle"></h2>
-<div class="episodes" id="episodesList"></div>
+  <div class="modal-content">
+    <button class="close-btn" id="closeModal">×</button>
+    <h2 id="modalTitle"></h2>
+    <div class="episodes" id="episodesList"></div>
+  </div>
 </div>
-</div>
+
 <footer>
-<p>ARCH'VERSE <span class="footer-spidey">🕷</span> by k0rkoww × heiwa'stream <span class="footer-spidey">🕸</span></p>
+  <p>ARCH'VERSE <span class="footer-spidey">🕷</span> by k0rkoww × heiwa'stream <span class="footer-spidey">🕸</span></p>
+  <button class="logout-btn" id="logoutBtn" type="button">Se déconnecter</button>
 </footer>
+
 <script src="script.js"></script>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+  // ---- CONFIGURATION SUPABASE ----
+  // ⚠️ URL de l'API du projet (PAS l'URL du dashboard) :
+  // Dashboard > Project Settings > API  →  https://<project-ref>.supabase.co
+  const SUPABASE_URL = 'https://fdycxfjaljuuaqdwmcuu.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr';
+  // REDIRECT_URL vide = on reste sur cette page après connexion.
+  // Sinon, mets une URL (ex: 'https://mcu-stream.netlify.app/') pour rediriger.
+  const REDIRECT_URL = '';
+  // ---------------------------------
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById('authForm');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const submitBtn = document.getElementById('submitBtn');
+  const msgBox = document.getElementById('msgBox');
+  const gateStatus = document.getElementById('gateStatus');
+  const tabLogin = document.getElementById('gateTabLogin');
+  const tabSignup = document.getElementById('gateTabSignup');
+  const pwToggle = document.getElementById('pwToggle');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  let mode = 'login'; // 'login' | 'signup'
+
+  function setMode(newMode){
+    mode = newMode;
+    tabLogin.classList.toggle('active', mode === 'login');
+    tabSignup.classList.toggle('active', mode === 'signup');
+    if (mode === 'login'){
+      submitBtn.textContent = 'Entrer dans la salle';
+      passwordInput.autocomplete = 'current-password';
+    } else {
+      submitBtn.textContent = 'Créer mon accès';
+      passwordInput.autocomplete = 'new-password';
+    }
+    hideMsg();
+  }
+
+  tabLogin.addEventListener('click', () => setMode('login'));
+  tabSignup.addEventListener('click', () => setMode('signup'));
+
+  pwToggle.addEventListener('click', () => {
+    const isPw = passwordInput.type === 'password';
+    passwordInput.type = isPw ? 'text' : 'password';
+    pwToggle.textContent = isPw ? 'MASQUER' : 'AFFICHER';
+  });
+
+  function showMsg(text, type){
+    msgBox.textContent = text;
+    msgBox.className = 'msg ' + type;
+  }
+  function hideMsg(){
+    msgBox.className = 'msg';
+    msgBox.textContent = '';
+  }
+  function setLoading(loading){
+    submitBtn.disabled = loading;
+    submitBtn.textContent = loading ? 'Un instant…' : (mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès');
+  }
+
+  // Déverrouille la page (et redirige si REDIRECT_URL est défini)
+  function unlock(){
+    document.body.classList.add('authed');
+    if (REDIRECT_URL) window.location.href = REDIRECT_URL;
+  }
+
+  // Affiche le formulaire une fois la vérification de session terminée
+  function showForm(){
+    gateStatus.style.display = 'none';
+    form.style.display = 'block';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMsg();
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password){
+      showMsg('Email et mot de passe sont requis.', 'error');
+      return;
+    }
+    if (password.length < 8){
+      showMsg('Le mot de passe doit contenir au moins 8 caractères.', 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (mode === 'login'){
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        showMsg('Connexion réussie. Bienvenue !', 'success');
+        setTimeout(unlock, 600);
+      } else {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        if (data.session){
+          showMsg('Compte créé. Bienvenue !', 'success');
+          setTimeout(unlock, 600);
+        } else {
+          showMsg('Compte créé. Vérifie ta boîte mail pour confirmer ton adresse avant de te connecter.', 'success');
+          setMode('login');
+        }
+      }
+    } catch (err){
+      showMsg(traduireErreur(err.message), 'error');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  // Si une session valide existe déjà, on déverrouille directement.
+  supabase.auth.getSession().then(({ data }) => {
+    if (data.session){
+      unlock();
+    } else {
+      showForm();
+    }
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+    try { await supabase.auth.signOut(); } catch (e) {}
+    document.body.classList.remove('authed');
+    form.reset();
+    hideMsg();
+    setMode('login');
+    showForm();
+  });
+
+  function traduireErreur(msg){
+    const map = {
+      'Invalid login credentials': 'Email ou mot de passe incorrect.',
+      'User already registered': 'Un compte existe déjà avec cet email.',
+      'Email not confirmed': 'Confirme ton email avant de te connecter (vérifie ta boîte mail).',
+      'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.'
+    };
+    return map[msg] || msg || 'Une erreur est survenue, réessaie.';
+  }
+</script>
 </body>
 </html>

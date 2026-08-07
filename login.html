@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Accès héros — Stream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0a0d;
+    --panel: #17151a;
+    --panel-2: #1e1b21;
+    --gold: #e0263f;
+    --gold-dim: #971827;
+    --red: #e0263f;
+    --text: #f2efe9;
+    --muted: #8a8790;
+    --border: #2c2730;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    display:flex;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Left marquee panel ---------- */
+  .marquee-panel{
+    position:relative;
+    flex: 0 0 38%;
+    background:
+      radial-gradient(ellipse at 30% 15%, rgba(224,38,63,0.16), transparent 55%),
+      repeating-radial-gradient(circle at 0 0, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 14px),
+      linear-gradient(180deg, #100d10 0%, #08070a 100%);
+    background-size: auto, 14px 14px, auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    border-right:1px solid var(--border);
+  }
+  .impact-burst{
+    position:absolute;
+    top:50%; left:50%;
+    width:640px; height:640px;
+    transform: translate(-50%,-52%) rotate(8deg);
+    background: repeating-conic-gradient(from 0deg, rgba(224,38,63,0.10) 0deg 4deg, transparent 4deg 16deg);
+    border-radius:50%;
+    z-index:1;
+    pointer-events:none;
+  }
+  .action-stripe{
+    position:absolute;
+    top:0; left:-10%;
+    width:140%; height:64px;
+    background: linear-gradient(90deg, transparent, var(--red) 45%, var(--red) 55%, transparent);
+    transform: skewY(-3deg);
+    opacity:.9;
+    z-index:2;
+  }
+  .action-stripe.bottom{
+    top:auto; bottom:0;
+    transform: skewY(3deg);
+  }
+  .sprockets{
+    position:absolute;
+    top:0; bottom:0;
+    width:28px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-evenly;
+    align-items:center;
+  }
+  .sprockets.left{left:0; border-right:1px dashed var(--border);}
+  .sprockets.right{right:0; border-left:1px dashed var(--border);}
+  .sprockets span{
+    width:12px; height:12px;
+    background: var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:2px;
+  }
+  .spotlight{
+    position:absolute;
+    top:-20%;
+    left:50%;
+    width:180%;
+    height:140%;
+    transform: translateX(-50%) rotate(8deg);
+    background: linear-gradient(180deg, rgba(224,38,63,0.14), transparent 60%);
+    filter: blur(10px);
+    animation: sweep 9s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes sweep{
+    0%,100%{ opacity:.35; transform: translateX(-52%) rotate(6deg);}
+    50%{ opacity:.7; transform: translateX(-48%) rotate(10deg);}
+  }
+  .marquee-content{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    padding: 0 48px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.35em;
+    color: var(--gold);
+    text-transform:uppercase;
+    margin-bottom:22px;
+  }
+  .marquee-title{
+    font-family:'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 7vw, 84px);
+    line-height:0.92;
+    letter-spacing:0.03em;
+    color:var(--text);
+    text-shadow: 0 0 30px rgba(224,38,63,0.25), 3px 3px 0 rgba(224,38,63,0.35);
+    font-style: italic;
+  }
+  .marquee-title span{ color: var(--gold); }
+  .badge-row{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-top:22px;
+    flex-wrap:wrap;
+  }
+  .badge{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.12em;
+    color: var(--muted);
+    border:1px solid var(--border);
+    background: rgba(224,38,63,0.06);
+    padding:5px 10px;
+    border-radius:3px;
+    text-transform:uppercase;
+  }
+  .marquee-sub{
+    margin-top:24px;
+    color: var(--muted);
+    font-size:14px;
+    line-height:1.6;
+    max-width:340px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .status-ticker{
+    position:absolute;
+    bottom:32px;
+    left:48px;
+    right:48px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    color: var(--muted);
+    display:flex;
+    justify-content:space-between;
+    z-index:2;
+  }
+  .status-ticker .dot{
+    display:inline-block;
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--gold);
+    margin-right:8px;
+    box-shadow: 0 0 8px var(--gold);
+  }
+
+  /* ---------- Right form panel ---------- */
+  .form-panel{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 40px 24px;
+  }
+  .card{
+    width:100%;
+    max-width:400px;
+  }
+  .card h1{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:34px;
+    letter-spacing:0.02em;
+    margin-bottom:6px;
+  }
+  .card p.lead{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:32px;
+  }
+  .tabs{
+    display:flex;
+    gap:2px;
+    background: var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:4px;
+    margin-bottom:28px;
+  }
+  .tabs button{
+    flex:1;
+    padding:10px 0;
+    background:transparent;
+    border:none;
+    color:var(--muted);
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.02em;
+    border-radius:6px;
+    cursor:pointer;
+    transition: all .18s ease;
+  }
+  .tabs button.active{
+    background: var(--gold);
+    color:#160b0c;
+  }
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color: var(--muted);
+    margin-bottom:8px;
+  }
+  .field{ margin-bottom:18px; }
+  input[type="email"], input[type="password"]{
+    width:100%;
+    padding:13px 14px;
+    background: var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color: var(--text);
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    outline:none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  input::placeholder{ color:#55525f; }
+  input:focus{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(224,38,63,0.15);
+  }
+  .pw-row{ position:relative; }
+  .pw-toggle{
+    position:absolute;
+    right:12px; top:50%;
+    transform: translateY(-50%);
+    background:none; border:none;
+    color:var(--muted);
+    font-size:11px;
+    font-family:'JetBrains Mono', monospace;
+    cursor:pointer;
+    letter-spacing:0.05em;
+  }
+  .pw-toggle:hover{ color: var(--gold); }
+
+  button.submit{
+    width:100%;
+    padding:14px 0;
+    margin-top:6px;
+    background: var(--gold);
+    color:#160b0c;
+    border:none;
+    border-radius:8px;
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    transition: background .15s ease, transform .1s ease;
+  }
+  button.submit:hover{ background:#ff4d63; }
+  button.submit:active{ transform: scale(0.99); }
+  button.submit:disabled{
+    background: var(--gold-dim);
+    cursor:not-allowed;
+    opacity:.7;
+  }
+  button.submit:focus-visible, .tabs button:focus-visible, input:focus-visible{
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+
+  .msg{
+    margin-top:16px;
+    font-size:13px;
+    padding:12px 14px;
+    border-radius:8px;
+    display:none;
+    line-height:1.5;
+  }
+  .msg.error{
+    display:block;
+    background: rgba(196,67,43,0.12);
+    border:1px solid rgba(196,67,43,0.4);
+    color:#f0a596;
+  }
+  .msg.success{
+    display:block;
+    background: rgba(224,38,63,0.1);
+    border:1px solid rgba(224,38,63,0.4);
+    color: var(--gold);
+  }
+  .foot-note{
+    margin-top:28px;
+    font-size:12px;
+    color:#55525f;
+    text-align:center;
+    line-height:1.6;
+  }
+  .foot-note code{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--muted);
+  }
+
+  @media (max-width: 860px){
+    .marquee-panel{ display:none; }
+    .form-panel{ padding:24px 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .spotlight{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="marquee-panel">
+    <div class="action-stripe"></div>
+    <div class="action-stripe bottom"></div>
+    <div class="impact-burst"></div>
+    <div class="sprockets left">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="sprockets right">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="spotlight"></div>
+    <div class="marquee-content">
+      <div class="eyebrow">Accès héros seulement</div>
+      <div class="marquee-title">ENTRE DANS<br><span>L'UNIVERS</span></div>
+      <p class="marquee-sub">Identifie-toi pour rejoindre le stream. La séance démarre juste après le générique.</p>
+      <div class="badge-row">
+        <span class="badge">Phase en cours</span>
+        <span class="badge">Accès illimité</span>
+        <span class="badge">4K</span>
+      </div>
+    </div>
+    <div class="status-ticker">
+      <span><span class="dot"></span>PORTE SÉCURISÉE</span>
+      <span>SUPABASE AUTH</span>
+    </div>
+  </div>
+
+  <div class="form-panel">
+    <div class="card">
+      <h1 id="formTitle">Se connecter</h1>
+      <p class="lead" id="formLead">Entrez vos identifiants pour accéder au stream.</p>
+
+      <div class="tabs">
+        <button type="button" class="active" id="tabLogin">Connexion</button>
+        <button type="button" id="tabSignup">Créer un compte</button>
+      </div>
+
+      <form id="authForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="toi@exemple.com" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <div class="pw-row">
+            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" minlength="8" required />
+            <button type="button" class="pw-toggle" id="pwToggle">AFFICHER</button>
+          </div>
+        </div>
+        <button type="submit" class="submit" id="submitBtn">Entrer dans la salle</button>
+        <div class="msg" id="msgBox"></div>
+      </form>
+
+      <p class="foot-note">
+        Connexion chiffrée via Supabase Auth. Aucun mot de passe n'est stocké en clair.<br>
+        Config requise : <code>SUPABASE_URL</code> / <code>SUPABASE_ANON_KEY</code> ci-dessous.
+      </p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    // ---- CONFIGURATION : remplace ces deux valeurs par celles de ton projet Supabase ----
+    // Dashboard Supabase -> Project Settings -> API
+    const SUPABASE_URL = 'https://supabase.com/dashboard/project/fdycxfjaljuuaqdwmcuu';
+    const SUPABASE_ANON_KEY = 'sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr';
+    // Où rediriger une fois connecté :
+    const REDIRECT_URL = 'https://mcu-stream.netlify.app/';
+    // ----------------------------------------------------------------------------------
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const form = document.getElementById('authForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const msgBox = document.getElementById('msgBox');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabSignup = document.getElementById('tabSignup');
+    const formTitle = document.getElementById('formTitle');
+    const formLead = document.getElementById('formLead');
+    const pwToggle = document.getElementById('pwToggle');
+
+    let mode = 'login'; // 'login' | 'signup'
+
+    function setMode(newMode){
+      mode = newMode;
+      tabLogin.classList.toggle('active', mode === 'login');
+      tabSignup.classList.toggle('active', mode === 'signup');
+      if (mode === 'login'){
+        formTitle.textContent = 'Se connecter';
+        formLead.textContent = 'Entrez vos identifiants pour accéder au stream.';
+        submitBtn.textContent = 'Entrer dans la salle';
+        passwordInput.autocomplete = 'current-password';
+      } else {
+        formTitle.textContent = 'Créer un compte';
+        formLead.textContent = 'Un email valide et un mot de passe de 8 caractères minimum.';
+        submitBtn.textContent = 'Créer mon accès';
+        passwordInput.autocomplete = 'new-password';
+      }
+      hideMsg();
+    }
+
+    tabLogin.addEventListener('click', () => setMode('login'));
+    tabSignup.addEventListener('click', () => setMode('signup'));
+
+    pwToggle.addEventListener('click', () => {
+      const isPw = passwordInput.type === 'password';
+      passwordInput.type = isPw ? 'text' : 'password';
+      pwToggle.textContent = isPw ? 'MASQUER' : 'AFFICHER';
+    });
+
+    function showMsg(text, type){
+      msgBox.textContent = text;
+      msgBox.className = 'msg ' + type;
+    }
+    function hideMsg(){
+      msgBox.className = 'msg';
+      msgBox.textContent = '';
+    }
+    function setLoading(loading){
+      submitBtn.disabled = loading;
+      submitBtn.textContent = loading ? 'Un instant…' : (mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMsg();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password){
+        showMsg('Email et mot de passe sont requis.', 'error');
+        return;
+      }
+      if (password.length < 8){
+        showMsg('Le mot de passe doit contenir au moins 8 caractères.', 'error');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        if (mode === 'login'){
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          showMsg('Connexion réussie. Redirection…', 'success');
+          setTimeout(() => { window.location.href = REDIRECT_URL; }, 700);
+        } else {
+          const { data, error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          if (data.session){
+            showMsg('Compte créé. Redirection…', 'success');
+            setTimeout(() => { window.location.href = REDIRECT_URL; }, 700);
+          } else {
+            showMsg('Compte créé. Vérifie ta boîte mail pour confirmer ton adresse avant de te connecter.', 'success');
+            setMode('login');
+          }
+        }
+      } catch (err) {
+        showMsg(traduireErreur(err.message), 'error');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Si une session valide existe déjà, on redirige directement.
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session){
+        showMsg('Session active détectée. Redirection…', 'success');
+        setTimeout(() => { window.location.href = REDIRECT_URL; }, 500);
+      }
+    });
+
+    function traduireErreur(msg){
+      const map = {
+        'Invalid login credentials': 'Email ou mot de passe incorrect.',
+        'User already registered': 'Un compte existe déjà avec cet email.',
+        'Email not confirmed': 'Confirme ton email avant de te connecter (vérifie ta boîte mail).',
+        'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.'
+      };
+      return map[msg] || msg || 'Une erreur est survenue, réessaie.';
+    }
+  </script>
+</body>
+</html>
