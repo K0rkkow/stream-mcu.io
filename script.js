@@ -269,24 +269,41 @@ function ph(title){
   return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
 }
 
+// ─── DONNÉES AJOUTÉES VIA LA PAGE DÉVELOPPEUR (admin.php → data.json) ───
+let EXTRA = [];
+let filtreActif = "mcu"; // mémorise l'onglet actif pour ne pas le perdre au chargement
+
+fetch("data.json")
+  .then(r => { if (!r.ok) throw new Error("pas de data.json"); return r.json(); })
+  .then(d => { EXTRA = Array.isArray(d) ? d : []; render(filtreActif); })
+  .catch(() => render(filtreActif)); // si data.json n'existe pas, on garde les données de base
+
 // ─── RENDU ───
-function render(filter = "mcu") {
+function render(filter = filtreActif) {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
 
-  const liste = filter === "horsmcu" ? HORS_MCU : MARVEL;
-  let phaseCourante = null;
+  const base = filter === "horsmcu" ? HORS_MCU : MARVEL;
+  const liste = [...base, ...EXTRA.filter(i => (i.collection || "mcu") === filter)];
 
+  // Vue Hors MCU : pas d'en-têtes de phase
+  if (filter === "horsmcu") {
+    liste.forEach(item => creerCarte(item, grid));
+    return;
+  }
+
+  // Vue MCU : groupement par phase (l'ordre d'apparition est conservé)
+  const parPhase = new Map();
   liste.forEach(item => {
-    // En-tête de phase, uniquement pour la vue MCU
-    if (filter !== "horsmcu" && item.phase !== phaseCourante) {
-      phaseCourante = item.phase;
-      const h = document.createElement("h3");
-      h.className = "phase-title";
-      h.textContent = item.phase;
-      grid.appendChild(h);
-    }
-    creerCarte(item, grid);
+    if (!parPhase.has(item.phase)) parPhase.set(item.phase, []);
+    parPhase.get(item.phase).push(item);
+  });
+  parPhase.forEach((items, phase) => {
+    const h = document.createElement("h3");
+    h.className = "phase-title";
+    h.textContent = phase;
+    grid.appendChild(h);
+    items.forEach(item => creerCarte(item, grid));
   });
 }
 
@@ -358,7 +375,8 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    render(btn.dataset.filter);
+    filtreActif = btn.dataset.filter;
+    render(filtreActif);
   };
 });
 
