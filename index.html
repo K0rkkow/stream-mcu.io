@@ -238,6 +238,19 @@ body:not(.authed){ overflow: hidden; }
 
 <script src="script.js"></script>
 <script type="module">
+} else {
+          const { data, error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          if (data.session){
+            showMsg('Compte créé. Bienvenue !', 'success');
+            setTimeout(unlock, 600);
+          } else {
+            // 1) on repasse d'abord en mode connexion (ce qui vide le message)
+            setMode('login');
+            // 2) PUIS on affiche le message, il ne sera plus effacé
+            showMsg('Compte créé ! Vérifie ta boîte mail, confirme ton adresse, puis connecte-toi.', 'success');
+          }
+        }
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
   // ---- CONFIGURATION SUPABASE ----
