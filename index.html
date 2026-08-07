@@ -63,7 +63,7 @@ body:not(.authed){ overflow: hidden; }
   text-transform: uppercase; color: #8a8790; margin: 0 0 7px;
 }
 .auth-gate .gate-field{ margin-bottom: 14px; }
-.auth-gate input[type="email"], .auth-gate input[type="password"]{
+.auth-gate input[type="email"], .auth-gate input[type="password"], .auth-gate input[type="text"]{
   width: 100%; padding: 12px 13px;
   background: #17151a; border: 1px solid #2c2730; border-radius: 8px;
   color: #f5f2ec; font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
@@ -96,7 +96,7 @@ body:not(.authed){ overflow: hidden; }
 .auth-gate .msg.error{
   display: block; background: rgba(196,67,43,.12); border: 1px solid rgba(196,67,43,.4); color: #f0a596;
 }
-/* ✅ Succès en VERT — plus de rouge pour ne pas confondre avec une erreur */
+/* ✅ Succès en VERT — le rouge ne sert qu'aux vraies erreurs */
 .auth-gate .msg.success{
   display: block;
   background: rgba(46,160,67,.12);
@@ -145,8 +145,12 @@ body:not(.authed){ overflow: hidden; }
 
     <form id="authForm" novalidate>
       <div class="gate-field">
+        <label for="username">Nom d'utilisateur</label>
+        <input type="text" id="username" name="username" placeholder="ton_pseudo" autocomplete="username" minlength="3" maxlength="20" required />
+      </div>
+      <div class="gate-field" id="emailField">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="toi@exemple.com" autocomplete="email" required />
+        <input type="email" id="email" name="email" placeholder="toi@exemple.com" autocomplete="email" />
       </div>
       <div class="gate-field">
         <label for="password">Mot de passe</label>
@@ -214,7 +218,7 @@ body:not(.authed){ overflow: hidden; }
 
 <script src="script.js"></script>
 
-<!-- 1) Chargement Supabase (script classique + fallback CDN) -->
+<!-- 1) Chargement Supabase (script classique + fallback CDN, marche même en double-clic) -->
 <script>
   function chargerSupabase(src){
     var s = document.createElement('script');
@@ -246,7 +250,9 @@ body:not(.authed){ overflow: hidden; }
   // -----------------------
 
   const form = document.getElementById('authForm');
+  const usernameInput = document.getElementById('username');
   const emailInput = document.getElementById('email');
+  const emailField = document.getElementById('emailField');
   const passwordInput = document.getElementById('password');
   const submitBtn = document.getElementById('submitBtn');
   const msgBox = document.getElementById('msgBox');
@@ -263,6 +269,9 @@ body:not(.authed){ overflow: hidden; }
     mode = newMode;
     tabLogin.classList.toggle('active', mode === 'login');
     tabSignup.classList.toggle('active', mode === 'signup');
+    // L'email n'apparaît QUE lors de la création de compte
+    emailField.style.display = mode === 'login' ? 'none' : 'block';
+    emailInput.required = mode === 'signup';
     submitBtn.textContent = mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès';
     passwordInput.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
     hideMsg();
@@ -291,8 +300,12 @@ body:not(.authed){ overflow: hidden; }
   showForm();
 
   function traduireErreur(msg){
+    if (/duplicate key|unique constraint/i.test(msg)) return "Ce nom d'utilisateur est déjà pris.";
+    if (/does not exist/i.test(msg)) return "Table 'profiles' introuvable. Exécute le SQL fourni dans Supabase (SQL Editor).";
     const map = {
-      'Invalid login credentials': 'Email ou mot de passe incorrect.',
+      'USERNAME_TAKEN': "Ce nom d'utilisateur est déjà pris.",
+      'UNKNOWN_USER': "Nom d'utilisateur ou mot de passe incorrect.",
+      'Invalid login credentials': "Nom d'utilisateur ou mot de passe incorrect.",
       'User already registered': 'Un compte existe déjà avec cet email.',
       'Email not confirmed': 'Confirme ton email avant de te connecter (vérifie ta boîte mail).',
       'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.'
@@ -303,7 +316,7 @@ body:not(.authed){ overflow: hidden; }
   function demarrer(){
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Session déjà active (ou lien de confirmation cliqué) → déverrouillage en arrière-plan
+    // Session déjà active → déverrouillage en arrière-plan
     supabase.auth.getSession()
       .then(({ data }) => { if (data.session) unlock(); })
       .catch(() => {});
@@ -335,11 +348,15 @@ body:not(.authed){ overflow: hidden; }
         return;
       }
 
-      const email = emailInput.value.trim();
+      const username = usernameInput.value.trim().toLowerCase();
       const password = passwordInput.value;
 
-      if (!email || !password){
-        showMsg('Email et mot de passe sont requis.', 'error');
+      if (!username || !password){
+        showMsg('Nom d\'utilisateur et mot de passe sont requis.', 'error');
+        return;
+      }
+      if (!/^[a-z0-9_]{3,20}$/.test(username)){
+        showMsg('Nom d\'utilisateur : 3 à 20 caractères (lettres, chiffres, _ uniquement).', 'error');
         return;
       }
       if (password.length < 8){
@@ -350,17 +367,42 @@ body:not(.authed){ overflow: hidden; }
       setLoading(true);
       try {
         if (mode === 'login'){
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          // 1) On retrouve l'email associé au username
+          const { data: prof, error: profErr } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('username', username)
+            .maybeSingle();
+          if (profErr) throw profErr;
+          if (!prof) throw new Error('UNKNOWN_USER');
+
+          // 2) Connexion classique avec cet email
+          const { error } = await supabase.auth.signInWithPassword({ email: prof.email, password });
           if (error) throw error;
           showMsg('Connexion réussie. Bienvenue !', 'success'); // ✅ vert
           setTimeout(unlock, 600);
         } else {
-          // Le lien de confirmation du mail reviendra sur la page courante
-          // (sur Netlify → ton domaine, plus localhost)
+          // Création de compte : username + email + mot de passe
+          const email = emailInput.value.trim();
+          if (!email){
+            showMsg("L'email est requis pour créer un compte.", 'error');
+            setLoading(false);
+            return;
+          }
+
+          // Vérifie que le username est libre AVANT d'inscrire
+          const { data: existing } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('username', username)
+            .maybeSingle();
+          if (existing) throw new Error('USERNAME_TAKEN');
+
           const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
+              data: { username }, // le trigger crée le profil automatiquement
               emailRedirectTo: REDIRECT_URL || window.location.origin
             }
           });
@@ -370,7 +412,7 @@ body:not(.authed){ overflow: hidden; }
             setTimeout(unlock, 600);
           } else {
             setMode('login'); // on repasse en Connexion d'abord…
-            showMsg('Compte créé ! Vérifie ta boîte mail, confirme ton adresse, puis connecte-toi.', 'success'); // ✅ vert, et il ne disparaît plus
+            showMsg('Compte créé ! Vérifie ta boîte mail, confirme ton adresse, puis connecte-toi avec ton nom d\'utilisateur.', 'success'); // ✅ vert, il ne disparaît plus
           }
         }
       } catch (err){
