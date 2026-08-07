@@ -1,5 +1,6 @@
+// ─── DONNÉES : MCU (déjà en ordre chronologique) ───
 const MARVEL = [
-  // ═══ PHASE 1 ═══
+  // Phase 1
   { title: "Captain America: First Avenger", year: 1942, type: "movie", phase: "Phase 1", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/1771", poster: "https://i.ebayimg.com/images/g/hM4AAOSwcw1jO34E/s-l1200.jpg" },
   { title: "Agent Carter S1", year: 1946, type: "series", phase: "Phase 1", earth: "Terre-616",
@@ -21,7 +22,7 @@ const MARVEL = [
   { title: "The Avengers", year: 2012, type: "movie", phase: "Phase 1", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/24428", poster: "https://image.tmdb.org/t/p/w500/ylsAO88v2tF0iXRFojPa0UaAJf1.jpg" },
 
-  // ═══ PHASE 2 ═══
+  // Phase 2
   { title: "Iron Man 3", year: 2012, type: "movie", phase: "Phase 2", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/68721", poster: "https://image.tmdb.org/t/p/w500/sE71EBrRMfW0NKMHlXPO55Km88X.jpg" },
   { title: "Thor: The Dark World", year: 2013, type: "movie", phase: "Phase 2", earth: "Terre-616",
@@ -37,7 +38,7 @@ const MARVEL = [
   { title: "Ant-Man", year: 2015, type: "movie", phase: "Phase 2", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/102899", poster: "https://image.tmdb.org/t/p/w500/hAH2Rt2WvfMBK2tZDLMNuUTUwxG.jpg" },
 
-  // ═══ PHASE 3 ═══
+  // Phase 3
   { title: "Captain America: Civil War", year: 2016, type: "movie", phase: "Phase 3", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/271110", poster: "https://image.tmdb.org/t/p/w500/i2nc9IAP1xRWoa3MgeR7ldsshkV.jpg" },
   { title: "Black Widow", year: 2016, type: "movie", phase: "Phase 3", earth: "Terre-616",
@@ -57,7 +58,7 @@ const MARVEL = [
   { title: "Avengers: Endgame", year: 2023, type: "movie", phase: "Phase 3", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/299534", poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg" },
 
-  // ═══ PHASE 4 ═══
+  // Phase 4
   { title: "Loki Saison 1", year: 2023, type: "series", phase: "Phase 4", earth: "TVA / Hors temps",
     poster: "https://image.tmdb.org/t/p/w500/x3tgUYJNx58xL5WhuV5sDnujKIh.jpg",
     episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/84958/s01e${String(i+1).padStart(2,'0')}`]) },
@@ -101,7 +102,7 @@ const MARVEL = [
   { title: "Les Gardiens: Joyeuses Fêtes", year: 2024, type: "movie", phase: "Phase 4", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/774752", poster: "https://image.tmdb.org/t/p/w500/cF3E6CrCm3NUy5PDRBbGyXRChYb.jpg" },
 
-  // ═══ PHASE 5 ═══
+  // Phase 5
   { title: "Ant-Man 3: Quantumania", year: 2025, type: "movie", phase: "Phase 5", earth: "Terre-616",
     url: "https://heiwastream.fr/watch/movie/640146", poster: "https://image.tmdb.org/t/p/w500/2hq8EKF6kaUyOxB9KhmIb5JUxEe.jpg" },
   { title: "Secret Invasion", year: 2025, type: "series", phase: "Phase 5", earth: "Terre-616",
@@ -136,7 +137,7 @@ const MARVEL = [
     poster: "https://image.tmdb.org/t/p/w500/kNOOBUEKnivdnWsxbtKnG69VMwx.jpg",
     episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/202555/s02e${String(i+1).padStart(2,'0')}`]) },
 
-  // ═══ PHASE 6 ═══
+  // Phase 6
   { title: "The Fantastic Four: First Steps", year: 2025, type: "movie", phase: "Phase 6", earth: "À venir",
     url: "https://heiwastream.fr/watch/movie/617126", poster: "https://image.tmdb.org/t/p/w500/rNc4KARs6fVa4axzvuv3NfUiNy1.jpg" },
   { title: "Spider-Man: Brand New Day", year: 2026, type: "movie", phase: "Phase 6", earth: "Terre-616",
@@ -145,43 +146,116 @@ const MARVEL = [
     url: "https://heiwastream.fr/watch/movie/1003596", poster: "https://image.tmdb.org/t/p/w500/bph5UiAOKLLjla10YuCyKWfKYGG.jpg", note: "pas encore disponible" },
 ];
 
-// ─── PLACEHOLDER FIABLE (remplace via.placeholder.com qui est mort) ───
+// ─── DONNÉES : HORS MCU (films & séries de super-héros / connus) ───
+const HORS_MCU = [
+  // Films DC
+  { title: "Batman Begins", year: 2005, type: "movie", phase: "DC", earth: "Gotham",
+    url: "https://heiwastream.fr/watch/movie/272", poster: "https://static.wikia.nocookie.net/batman/images/9/9b/Batman_Begins-413277928-large.jpg/revision/latest?cb=20260106145937" },
+  { title: "The Dark Knight", year: 2008, type: "movie", phase: "DC", earth: "Gotham",
+    url: "https://heiwastream.fr/watch/movie/155", poster: "https://i.ebayimg.com/images/g/pAEAAOSwnJph0HO~/s-l1600.webp" },
+  { title: "The Dark Knight Rises", year: 2012, type: "movie", phase: "DC", earth: "Gotham",
+    url: "https://heiwastream.fr/watch/movie/49026", poster: "https://m.media-amazon.com/images/I/91HM6470jLL.jpg" },
+  { title: "Man of Steel", year: 2013, type: "movie", phase: "DC", earth: "Krypton / Terre",
+    url: "https://heiwastream.fr/watch/movie/49521", poster: "https://fr.web.img6.acsta.net/c_310_420/pictures/210/081/21008110_20130524125237634.jpg" },
+  { title: "Batman v Superman", year: 2016, type: "movie", phase: "DC", earth: "Terre",
+    url: "https://heiwastream.fr/watch/movie/209112", poster: "https://fr.web.img6.acsta.net/c_310_420/pictures/16/02/03/11/17/130929.jpg" },
+  { title: "Wonder Woman", year: 2017, type: "movie", phase: "DC", earth: "Themyscira",
+    url: "https://heiwastream.fr/watch/movie/297762", poster: "https://i.ebayimg.com/images/g/SZcAAOSwWo1kTXSu/s-l1200.jpg" },
+  { title: "Aquaman", year: 2018, type: "movie", phase: "DC", earth: "Atlantide",
+    url: "https://heiwastream.fr/watch/movie/297802", poster: "https://fr.web.img5.acsta.net/c_310_420/pictures/18/12/13/12/12/2738771.jpg" },
+  { title: "Joker", year: 2019, type: "movie", phase: "DC", earth: "Gotham",
+    url: "https://heiwastream.fr/watch/movie/475557", poster: "https://image.tmdb.org/t/p/w500/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg" },
+  { title: "Zack Snyder's Justice League", year: 2021, type: "movie", phase: "DC", earth: "Terre",
+    url: "https://heiwastream.fr/watch/movie/791373", poster: "https://upload.wikimedia.org/wikipedia/en/6/60/Zack_Snyder%27s_Justice_League.png" },
+  { title: "The Suicide Squad", year: 2021, type: "movie", phase: "DC", earth: "Terre",
+    url: "https://heiwastream.fr/watch/movie/436969", poster: "https://upload.wikimedia.org/wikipedia/en/0/06/The_Suicide_Squad_%28film%29_poster.jpg" },
+  { title: "The Batman", year: 2022, type: "movie", phase: "DC", earth: "Gotham",
+    url: "https://heiwastream.fr/watch/movie/414906", poster: "https://image.tmdb.org/t/p/w500/b0PlSFdDwbyK0cf5RxwDpaOJQvQ.jpg" },
+
+  // Films Marvel hors MCU (Sony / Fox)
+  { title: "Logan", year: 2017, type: "movie", phase: "Fox / X-Men", earth: "2029",
+    url: "https://heiwastream.fr/watch/movie/263115", poster: "https://upload.wikimedia.org/wikipedia/en/3/37/Logan_2017_poster.jpg" },
+  { title: "Venom", year: 2018, type: "movie", phase: "Sony", earth: "San Francisco",
+    url: "https://heiwastream.fr/watch/movie/335983", poster: "https://upload.wikimedia.org/wikipedia/en/1/10/Venom_%282018_film%29_poster.png" },
+  { title: "Spider-Man: Into the Spider-Verse", year: 2018, type: "movie", phase: "Sony", earth: "Spider-Verse",
+    url: "https://heiwastream.fr/watch/movie/324857", poster: "https://image.tmdb.org/t/p/w500/iiZZdoQBEYBv6id8su7ImL0oCbD.jpg" },
+  { title: "Venom: Let There Be Carnage", year: 2021, type: "movie", phase: "Sony", earth: "San Francisco",
+    url: "https://heiwastream.fr/watch/movie/580489", poster: "https://upload.wikimedia.org/wikipedia/en/a/a7/Venom_Let_There_Be_Carnage_poster.jpg" },
+
+  // Séries populaires / super-héros
+  { title: "Daredevil S1", year: 2015, type: "series", phase: "Netflix", earth: "Hell's Kitchen",
+    poster: "https://upload.wikimedia.org/wikipedia/en/1/1b/Daredevil_season_1_poster.jpg",
+    episodes: Array.from({length:13}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/61889/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Punisher S1", year: 2017, type: "series", phase: "Netflix", earth: "NYC",
+    poster: "https://upload.wikimedia.org/wikipedia/en/2/21/The_Punisher_season_1_poster.jpg",
+    episodes: Array.from({length:13}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/67170/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Flash S1", year: 2014, type: "series", phase: "Arrowverse", earth: "Terre-1",
+    poster: "https://upload.wikimedia.org/wikipedia/en/7/73/The_Flash_season_1.jpg",
+    episodes: Array.from({length:23}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60735/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Gotham S1", year: 2014, type: "series", phase: "DC / Fox", earth: "Gotham",
+    poster: "https://upload.wikimedia.org/wikipedia/en/a/ab/Gotham_%28season_1%29.jpg",
+    episodes: Array.from({length:22}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60708/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Boys S1", year: 2019, type: "series", phase: "Amazon", earth: "Hors MCU",
+    poster: "https://upload.wikimedia.org/wikipedia/en/f/f6/The_Boys_Season_1.jpg",
+    episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/76479/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Invincible S1", year: 2021, type: "series", phase: "Amazon", earth: "Hors MCU",
+    poster: "https://upload.wikimedia.org/wikipedia/en/3/34/Invincible_Season_1.jpg",
+    episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/95557/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Peacemaker S1", year: 2022, type: "series", phase: "DC / HBO", earth: "Hors MCU",
+    poster: "https://upload.wikimedia.org/wikipedia/en/f/fe/Peacemaker_season_1_poster.jpg",
+    episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/134597/s01e${String(i+1).padStart(2,'0')}`]) },
+];
+
+// ─── PLACEHOLDER FIABLE ───
 function ph(title){
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='450'><rect width='100%' height='100%' fill='#0b0b12'/><text x='50%' y='47%' fill='#e62429' font-family='Arial, sans-serif' font-size='22' font-weight='bold' text-anchor='middle'>${title}</text></svg>`;
   return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
 }
 
 // ─── RENDU ───
-function render(filter = "all") {
+function render(filter = "mcu") {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
 
-  const filtered = filter === "all" ? MARVEL : MARVEL.filter(m => m.type === filter);
+  const liste = filter === "horsmcu" ? HORS_MCU : MARVEL;
+  let phaseCourante = null;
 
-  filtered.forEach(item => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.onclick = () => handleClick(item);
-
-    const img = document.createElement("img");
-    img.src = item.poster;
-    img.alt = item.title;
-    img.loading = "lazy";
-    img.onerror = () => { img.onerror = null; img.src = ph(item.title); };
-    card.appendChild(img);
-
-    const overlay = document.createElement("div");
-    overlay.className = "card-overlay";
-    overlay.innerHTML = `
-      <div class="card-type">${item.type === "movie" ? "Film" : "Série"}</div>
-      <div class="card-phase">${item.phase}</div>
-      <div class="card-earth">${item.earth}</div>
-      <div class="card-title">${item.title} (${item.year})</div>
-      ${item.note ? `<div class="card-note">${item.note}</div>` : ""}
-    `;
-    card.appendChild(overlay);
-    grid.appendChild(card);
+  liste.forEach(item => {
+    // En-tête de phase, uniquement pour la vue MCU
+    if (filter !== "horsmcu" && item.phase !== phaseCourante) {
+      phaseCourante = item.phase;
+      const h = document.createElement("h3");
+      h.className = "phase-title";
+      h.textContent = item.phase;
+      grid.appendChild(h);
+    }
+    creerCarte(item, grid);
   });
+}
+
+function creerCarte(item, grid) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.onclick = () => handleClick(item);
+
+  const img = document.createElement("img");
+  img.src = item.poster;
+  img.alt = item.title;
+  img.loading = "lazy";
+  img.onerror = () => { img.onerror = null; img.src = ph(item.title); };
+  card.appendChild(img);
+
+  const overlay = document.createElement("div");
+  overlay.className = "card-overlay";
+  overlay.innerHTML = `
+    <div class="card-type">${item.type === "movie" ? "Film" : "Série"}</div>
+    <div class="card-phase">${item.phase}</div>
+    <div class="card-earth">${item.earth}</div>
+    <div class="card-title">${item.title} (${item.year})</div>
+    ${item.note ? `<div class="card-note">${item.note}</div>` : ""}
+  `;
+  card.appendChild(overlay);
+  grid.appendChild(card);
 }
 
 function handleClick(item) {
@@ -232,4 +306,4 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
 });
 
 // Init
-render();
+render("mcu");

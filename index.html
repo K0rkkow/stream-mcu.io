@@ -10,18 +10,19 @@
 <style>
 /* ============ GATE D'AUTHENTIFICATION ============ */
 .auth-gate{
-  position: fixed; inset: 0; z-index: 1000;
+  position: fixed; inset: 0; z-index: 2000;
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
-  background:
+  background-color: var(--bg-body);
+  background-image:
     radial-gradient(ellipse at 30% 15%, rgba(230,36,41,0.15), transparent 55%),
-    repeating-radial-gradient(circle at 0 0, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 14px),
-    linear-gradient(180deg, var(--bg-header) 0%, var(--bg-body) 100%);
+    repeating-radial-gradient(circle at 0 0, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 14px);
   overflow: auto;
   transition: background-color 0.3s ease;
 }
 body.authed .auth-gate{ display: none; }
 body:not(.authed){ overflow: hidden; }
+body:not(.authed) .theme-toggle{ display: none; }
 
 .gate-card{ position: relative; z-index: 2; width: 100%; max-width: 400px; text-align: center; }
 .gate-eyebrow{
@@ -118,9 +119,7 @@ body:not(.authed){ overflow: hidden; }
   box-shadow: 0 4px 18px rgba(0,0,0,.35);
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
-.user-bar .user-icon{
-  font-size: 13px;
-}
+.user-bar .user-icon{ font-size: 13px; }
 .user-bar .user-name{
   font-family: 'Inter', sans-serif;
   font-size: 13px; font-weight: 600; color: var(--text-main);
@@ -212,9 +211,8 @@ body:not(.authed){ overflow: hidden; }
 </div>
 
 <div class="filters">
-  <button class="filter-btn active" data-filter="all">✦ Tout</button>
-  <button class="filter-btn" data-filter="movie">▸ Films</button>
-  <button class="filter-btn" data-filter="series">▸ Séries</button>
+  <button class="filter-btn active" data-filter="mcu">✦ MCU · Ordre chrono</button>
+  <button class="filter-btn" data-filter="horsmcu">⚡ Hors MCU</button>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -263,7 +261,6 @@ body:not(.authed){ overflow: hidden; }
   // ---- CONFIGURATION ----
   const SUPABASE_URL = 'https://fdycxfjaljuuaqdwmcuu.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr';
-  // Laisse vide pour rester sur cette page. Sinon : 'https://mcu-stream.netlify.app/'
   const REDIRECT_URL = '';
   // -----------------------
 
@@ -312,7 +309,6 @@ body:not(.authed){ overflow: hidden; }
     submitBtn.textContent = b ? 'Un instant…' : (mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès');
   }
 
-  // Affiche le pseudo en haut à droite (depuis user_metadata, repli sur la table profiles)
   function afficherPseudo(user){
     if (!user) return;
     var pseudo = (user.user_metadata && user.user_metadata.username) || '';
@@ -328,7 +324,7 @@ body:not(.authed){ overflow: hidden; }
   }
 
   function unlock(user){
-    userBar.style.display = 'flex';      // barre utilisateur en haut
+    userBar.style.display = 'flex';
     afficherPseudo(user);
     document.body.classList.add('authed');
     if (REDIRECT_URL) window.location.href = REDIRECT_URL;
@@ -354,7 +350,6 @@ body:not(.authed){ overflow: hidden; }
     return msg || 'Une erreur est survenue, réessaie.';
   }
 
-  /* ====== BOUTONS : attachés immédiatement ====== */
   tabLogin.addEventListener('click', function(){ setMode('login'); });
   tabSignup.addEventListener('click', function(){ setMode('signup'); });
 
@@ -364,7 +359,6 @@ body:not(.authed){ overflow: hidden; }
     pwToggle.textContent = estMdp ? 'MASQUER' : 'AFFICHER';
   });
 
-  // Déconnexion : bouton en haut à droite
   logoutBtn.addEventListener('click', async function(){
     try { if (supabase) await supabase.auth.signOut(); } catch (ign) {}
     document.body.classList.remove('authed');
@@ -445,18 +439,66 @@ body:not(.authed){ overflow: hidden; }
     }
   });
 
-  /* ====== Démarrage (en arrière-plan) ====== */
+ /* ====== Démarrage (en arrière-plan) ====== */
+  function estSessionValide(accessToken){
+    if (!accessToken) return false;
+    try {
+      var b64 = accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      var payload = JSON.parse(atob(b64));
+      // exp est en secondes
+      return payload.exp * 1000 > Date.now();
+    } catch (e) { return false; }
+  }
+
   function initAuth(){
     if (demarre) return;
     demarre = true;
+
     try {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // 1) Ouvre le verrou dès qu'une session existe (connexion, refresh, reload)
+      supabase.auth.onAuthStateChange(function(event, session){
+        if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')){
+          unlock(session.user);
+        }
+        if (event === 'SIGNED_OUT'){ _resetUI(); }
+      });
+
+      // 2) Relecture robuste d'une session déjà enregistrée (avant même l'init Supabase)
       supabase.auth.getSession().then(function(res){
         if (res && res.data && res.data.session) unlock(res.data.session.user);
       }).catch(function(){});
+
+      // 3) Repli : vérifie le token dans localStorage si Supabase n'a rien renvoyé
+      var cle = null;
+      for (var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if (k && k.indexOf('auth-token') !== -1){ cle = k; break; }
+      }
+      if (cle){
+        try {
+          var brute = localStorage.getItem(cle);
+          var store = JSON.parse(brute);
+          var accessToken = store.access_token || (store.currentSession && store.currentSession.access_token);
+          if (estSessionValide(accessToken)){
+            unlock({ id: 'from-storage' });
+          }
+        } catch (e) {}
+      }
     } catch (err){
       showMsg('Erreur de démarrage : ' + err.message, 'error');
     }
+  }
+
+  // Réinitialise l'interface quand on se déconnecte (y compris via un autre onglet)
+  function _resetUI(){
+    document.body.classList.remove('authed');
+    userBar.style.display = 'none';
+    userName.textContent = '…';
+    form.reset();
+    hideMsg();
+    setMode('login');
   }
 
   form.style.display = 'block';
@@ -494,7 +536,6 @@ body:not(.authed){ overflow: hidden; }
     }
   }
 
-  // Préférence enregistrée, sinon mode sombre par défaut
   var savedTheme = localStorage.getItem('archverse_theme') || 'dark';
   setTheme(savedTheme);
 
