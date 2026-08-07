@@ -146,9 +146,9 @@ const MARVEL = [
     url: "https://heiwastream.fr/watch/movie/1003596", poster: "https://image.tmdb.org/t/p/w500/bph5UiAOKLLjla10YuCyKWfKYGG.jpg", note: "pas encore disponible" },
 ];
 
-// ─── DONNÉES : HORS MCU (films & séries de super-héros / connus) ───
+// ─── DONNÉES : HORS MCU (DC + Sony/Fox + séries + films) ───
 const HORS_MCU = [
-  // Films DC
+  // ── Films DC ──
   { title: "Batman Begins", year: 2005, type: "movie", phase: "DC", earth: "Gotham",
     url: "https://heiwastream.fr/watch/movie/272", poster: "https://static.wikia.nocookie.net/batman/images/9/9b/Batman_Begins-413277928-large.jpg/revision/latest?cb=20260106145937" },
   { title: "The Dark Knight", year: 2008, type: "movie", phase: "DC", earth: "Gotham",
@@ -172,7 +172,7 @@ const HORS_MCU = [
   { title: "The Batman", year: 2022, type: "movie", phase: "DC", earth: "Gotham",
     url: "https://heiwastream.fr/watch/movie/414906", poster: "https://image.tmdb.org/t/p/w500/b0PlSFdDwbyK0cf5RxwDpaOJQvQ.jpg" },
 
-  // Films Marvel hors MCU (Sony / Fox)
+  // ── Films Marvel hors MCU (Sony / Fox) ──
   { title: "Logan", year: 2017, type: "movie", phase: "Fox / X-Men", earth: "2029",
     url: "https://heiwastream.fr/watch/movie/263115", poster: "https://upload.wikimedia.org/wikipedia/en/3/37/Logan_2017_poster.jpg" },
   { title: "Venom", year: 2018, type: "movie", phase: "Sony", earth: "San Francisco",
@@ -182,7 +182,17 @@ const HORS_MCU = [
   { title: "Venom: Let There Be Carnage", year: 2021, type: "movie", phase: "Sony", earth: "San Francisco",
     url: "https://heiwastream.fr/watch/movie/580489", poster: "https://upload.wikimedia.org/wikipedia/en/a/a7/Venom_Let_There_Be_Carnage_poster.jpg" },
 
-  // Séries populaires / super-héros
+  // ── Nouveaux films (vérifiés sur heiwastream) ──
+  { title: "The Godfather", year: 1972, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/238", poster: "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg" },
+  { title: "Titanic", year: 1997, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/597", poster: "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg" },
+  { title: "Gladiator", year: 2000, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/98", poster: "https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg" },
+  { title: "Avatar", year: 2009, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/19995", poster: "https://image.tmdb.org/t/p/w500/7N8L80OaG8EBTDdRBjGqT8PBzCM.jpg" },
+  { title: "Inception", year: 2010, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/27205", poster: "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg" },
+  { title: "Interstellar", year: 2014, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/157336", poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" },
+  { title: "Dune", year: 2021, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/438631", poster: "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg" },
+  { title: "Oppenheimer", year: 2023, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/872585", poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" },
+
+  // ── Séries (tes entrées) ──
   { title: "Daredevil S1", year: 2015, type: "series", phase: "Netflix", earth: "Hell's Kitchen",
     poster: "https://upload.wikimedia.org/wikipedia/en/1/1b/Daredevil_season_1_poster.jpg",
     episodes: Array.from({length:13}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/61889/s01e${String(i+1).padStart(2,'0')}`]) },
@@ -196,14 +206,61 @@ const HORS_MCU = [
     poster: "https://upload.wikimedia.org/wikipedia/en/a/ab/Gotham_%28season_1%29.jpg",
     episodes: Array.from({length:22}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60708/s01e${String(i+1).padStart(2,'0')}`]) },
   { title: "The Boys S1", year: 2019, type: "series", phase: "Amazon", earth: "Hors MCU",
-    poster: "https://upload.wikimedia.org/wikipedia/en/f/f6/The_Boys_Season_1.jpg",
+    poster: "https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg",
     episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/76479/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Boys S2", year: 2020, type: "series", phase: "Amazon", earth: "Hors MCU",
+    poster: "https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg",
+    episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/76479/s02e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Boys S3", year: 2022, type: "series", phase: "Amazon", earth: "Hors MCU",
+    poster: "https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg",
+    episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/76479/s03e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Boys S4", year: 2024, type: "series", phase: "Amazon", earth: "Hors MCU",
+    poster: "https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg",
+    episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/76479/s04e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Boys S5", year: 2026, type: "series", phase: "Amazon", earth: "Hors MCU",
+    poster: "https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg",
+    episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/76479/s05e${String(i+1).padStart(2,'0')}`]) },
   { title: "Invincible S1", year: 2021, type: "series", phase: "Amazon", earth: "Hors MCU",
     poster: "https://upload.wikimedia.org/wikipedia/en/3/34/Invincible_Season_1.jpg",
     episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/95557/s01e${String(i+1).padStart(2,'0')}`]) },
   { title: "Peacemaker S1", year: 2022, type: "series", phase: "DC / HBO", earth: "Hors MCU",
     poster: "https://upload.wikimedia.org/wikipedia/en/f/fe/Peacemaker_season_1_poster.jpg",
     episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/134597/s01e${String(i+1).padStart(2,'0')}`]) },
+
+  // ── Nouvelles séries (affiches TMDB vérifiées) ──
+  { title: "Breaking Bad S1", year: 2008, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg", episodes: Array.from({length:7}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1396/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Breaking Bad S2", year: 2009, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg", episodes: Array.from({length:13}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1396/s02e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Breaking Bad S3", year: 2010, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg", episodes: Array.from({length:13}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1396/s03e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Breaking Bad S4", year: 2011, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg", episodes: Array.from({length:13}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1396/s04e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Breaking Bad S5", year: 2013, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg", episodes: Array.from({length:16}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1396/s05e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Game of Thrones S1", year: 2011, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg", episodes: Array.from({length:10}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1399/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Game of Thrones S2", year: 2012, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg", episodes: Array.from({length:10}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1399/s02e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Game of Thrones S3", year: 2013, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg", episodes: Array.from({length:10}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1399/s03e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Game of Thrones S4", year: 2014, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg", episodes: Array.from({length:10}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1399/s04e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Game of Thrones S5", year: 2015, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg", episodes: Array.from({length:10}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1399/s05e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Game of Thrones S6", year: 2016, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg", episodes: Array.from({length:10}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1399/s06e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Game of Thrones S7", year: 2017, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg", episodes: Array.from({length:7}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1399/s07e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Game of Thrones S8", year: 2019, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg", episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/1399/s08e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Stranger Things S1", year: 2016, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg", episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/66732/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Stranger Things S2", year: 2017, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg", episodes: Array.from({length:9}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/66732/s02e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Stranger Things S3", year: 2019, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg", episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/66732/s03e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Stranger Things S4", year: 2022, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg", episodes: Array.from({length:9}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/66732/s04e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Stranger Things S5", year: 2025, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg", episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/66732/s05e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Witcher S1", year: 2019, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/rhErSlk0M236rNFertVAZa9lz9S.jpg", episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/71912/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Witcher S2", year: 2021, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/rhErSlk0M236rNFertVAZa9lz9S.jpg", episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/71912/s02e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Witcher S3", year: 2023, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/rhErSlk0M236rNFertVAZa9lz9S.jpg", episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/71912/s03e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Witcher S4", year: 2025, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/rhErSlk0M236rNFertVAZa9lz9S.jpg", episodes: Array.from({length:8}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/71912/s04e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Peaky Blinders S1", year: 2013, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg", episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60574/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Peaky Blinders S2", year: 2014, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg", episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60574/s02e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Peaky Blinders S3", year: 2016, type: "series", phase: "Hors MCU", earth: "Terre-616", poster: "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg", episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60574/s03e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Peaky Blinders S4", year: 2017, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg", episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60574/s04e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Peaky Blinders S5", year: 2019, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg", episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60574/s05e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Peaky Blinders S6", year: 2022, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg", episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/60574/s06e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Squid Game S1", year: 2021, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/heV89pC6pv5fz1plikfyQxYuE4L.jpg", episodes: Array.from({length:9}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/93405/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Squid Game S2", year: 2024, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/heV89pC6pv5fz1plikfyQxYuE4L.jpg", episodes: Array.from({length:7}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/93405/s02e${String(i+1).padStart(2,'0')}`]) },
+  { title: "Squid Game S3", year: 2025, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/heV89pC6pv5fz1plikfyQxYuE4L.jpg", episodes: Array.from({length:6}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/93405/s03e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Last of Us S1", year: 2023, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg", episodes: Array.from({length:9}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/100088/s01e${String(i+1).padStart(2,'0')}`]) },
+  { title: "The Last of Us S2", year: 2025, type: "series", phase: "Hors MCU", earth: "Terre", poster: "https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg", episodes: Array.from({length:7}, (_,i) => [`Ép. ${i+1}`, `https://heiwastream.fr/watch/tv/100088/s02e${String(i+1).padStart(2,'0')}`]) },
 ];
 
 // ─── PLACEHOLDER FIABLE ───
