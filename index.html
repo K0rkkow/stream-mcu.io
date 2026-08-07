@@ -16,8 +16,9 @@
   background:
     radial-gradient(ellipse at 30% 15%, rgba(230,36,41,0.15), transparent 55%),
     repeating-radial-gradient(circle at 0 0, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 14px),
-    linear-gradient(180deg, #100d12 0%, #0b0b12 100%);
+    linear-gradient(180deg, var(--bg-header) 0%, var(--bg-body) 100%);
   overflow: auto;
+  transition: background-color 0.3s ease;
 }
 body.authed .auth-gate{ display: none; }
 body:not(.authed){ overflow: hidden; }
@@ -26,62 +27,62 @@ body:not(.authed){ overflow: hidden; }
 .gate-eyebrow{
   font-family: 'Orbitron', monospace;
   font-size: 11px; letter-spacing: .35em;
-  color: #e62429; text-transform: uppercase;
+  color: var(--accent-red); text-transform: uppercase;
   margin-bottom: 14px;
 }
 .gate-title{
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(44px, 8vw, 64px);
   line-height: .92; letter-spacing: .03em;
-  color: #f5f2ec; font-style: italic;
+  color: var(--text-main); font-style: italic;
   text-shadow: 0 0 28px rgba(230,36,41,.3), 3px 3px 0 rgba(230,36,41,.35);
 }
-.gate-title span{ color: #e62429; }
-.gate-sub{ margin-top: 14px; color: #8a8790; font-size: 13px; line-height: 1.6; }
+.gate-title span{ color: var(--accent-red); }
+.gate-sub{ margin-top: 14px; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
 .gate-badges{
   display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px;
 }
 .gate-badges span{
   font-family: monospace; font-size: 10px; letter-spacing: .1em;
-  color: #8a8790; border: 1px solid #2c2730; background: rgba(230,36,41,.06);
+  color: var(--text-muted); border: 1px solid var(--border-subtle); background: rgba(230,36,41,.06);
   padding: 4px 9px; border-radius: 3px; text-transform: uppercase;
 }
 .gate-tabs{
   display: flex; gap: 2px; margin-top: 26px;
-  background: #17151a; border: 1px solid #2c2730; border-radius: 8px; padding: 4px;
+  background: var(--bg-btn-episode); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 4px;
 }
 .gate-tabs button{
   flex: 1; padding: 10px 0; background: transparent; border: none; cursor: pointer;
-  color: #8a8790; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px;
+  color: var(--text-muted); font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px;
   border-radius: 6px; transition: all .18s ease;
 }
-.gate-tabs button.active{ background: #e62429; color: #160b0c; }
+.gate-tabs button.active{ background: var(--accent-red); color: #160b0c; }
 
 .auth-gate form{ display: none; text-align: left; margin-top: 20px; }
 .auth-gate label{
   display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em;
-  text-transform: uppercase; color: #8a8790; margin: 0 0 7px;
+  text-transform: uppercase; color: var(--text-muted); margin: 0 0 7px;
 }
 .auth-gate .gate-field{ margin-bottom: 14px; }
 .auth-gate input[type="text"], .auth-gate input[type="password"]{
   width: 100%; padding: 12px 13px;
-  background: #17151a; border: 1px solid #2c2730; border-radius: 8px;
-  color: #f5f2ec; font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
-  transition: border-color .15s ease, box-shadow .15s ease;
+  background: var(--bg-btn-episode); border: 1px solid var(--border-subtle); border-radius: 8px;
+  color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .3s ease, color .3s ease;
 }
 .auth-gate input:focus{
-  border-color: #e62429; box-shadow: 0 0 0 3px rgba(230,36,41,.15);
+  border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(230,36,41,.15);
 }
 .auth-gate .gate-pw-row{ position: relative; }
 .gate-pw-toggle{
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
   background: none; border: none; cursor: pointer;
-  color: #8a8790; font-size: 10px; font-family: monospace; letter-spacing: .05em;
+  color: var(--text-muted); font-size: 10px; font-family: monospace; letter-spacing: .05em;
 }
-.gate-pw-toggle:hover{ color: #e62429; }
+.gate-pw-toggle:hover{ color: var(--accent-red); }
 .gate-submit{
   width: 100%; padding: 14px 0; margin-top: 6px;
-  background: #e62429; color: #160b0c; border: none; border-radius: 8px;
+  background: var(--accent-red); color: #160b0c; border: none; border-radius: 8px;
   font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .02em;
   cursor: pointer; transition: background .15s ease, transform .1s ease;
 }
@@ -103,33 +104,34 @@ body:not(.authed){ overflow: hidden; }
   color: #3fb950;
 }
 .gate-foot{
-  margin-top: 20px; font-size: 11px; color: #55525f; line-height: 1.6; text-align: center;
+  margin-top: 20px; font-size: 11px; color: var(--text-footer); line-height: 1.6; text-align: center;
 }
 
 /* ============ BARRE UTILISATEUR (haut droite) ============ */
 .user-bar{
   position: fixed; top: 14px; right: 14px; z-index: 900;
   display: none; align-items: center; gap: 10px;
-  background: rgba(23,21,26,.92);
-  border: 1px solid #2c2730; border-radius: 999px;
+  background: var(--bg-btn-episode);
+  border: 1px solid var(--border-subtle); border-radius: 999px;
   padding: 6px 8px 6px 14px;
   backdrop-filter: blur(6px);
   box-shadow: 0 4px 18px rgba(0,0,0,.35);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 .user-bar .user-icon{
   font-size: 13px;
 }
 .user-bar .user-name{
   font-family: 'Inter', sans-serif;
-  font-size: 13px; font-weight: 600; color: #f5f2ec;
+  font-size: 13px; font-weight: 600; color: var(--text-main);
   max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .user-bar .user-logout{
-  background: none; border: 1px solid #2c2730; border-radius: 999px;
-  color: #8a8790; font-family: 'Inter', sans-serif; font-size: 11px;
+  background: none; border: 1px solid var(--border-subtle); border-radius: 999px;
+  color: var(--text-muted); font-family: 'Inter', sans-serif; font-size: 11px;
   padding: 5px 12px; cursor: pointer; transition: all .15s ease;
 }
-.user-bar .user-logout:hover{ color: #e62429; border-color: #e62429; }
+.user-bar .user-logout:hover{ color: var(--accent-red); border-color: var(--accent-red); }
 
 @media (max-width: 480px){ .gate-card{ max-width: 340px; } .user-bar{ top: 10px; right: 10px; } }
 </style>
@@ -185,6 +187,10 @@ body:not(.authed){ overflow: hidden; }
 <div class="spider-web top-right"></div>
 
 <header>
+  <button class="theme-toggle" id="themeToggleBtn" type="button">
+    <span id="themeIcon">🌙</span>
+    <span id="themeText">Sombre</span>
+  </button>
   <div class="mjolnir">⚡</div>
   <div class="logo">ARCH'VERSE</div>
   <div class="logo-sub">⏣ MCU Chronologique ⏣</div>
@@ -467,5 +473,37 @@ body:not(.authed){ overflow: hidden; }
   if (window.supabase) initAuth();
 })();
 </script>
+
+<!-- 3) Bascule mode clair / sombre -->
+<script>
+(function(){
+  'use strict';
+  var toggleBtn = document.getElementById('themeToggleBtn');
+  var themeIcon = document.getElementById('themeIcon');
+  var themeText = document.getElementById('themeText');
+
+  function setTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('archverse_theme', theme);
+    if (theme === 'light'){
+      themeIcon.textContent = '☀️';
+      themeText.textContent = 'Clair';
+    } else {
+      themeIcon.textContent = '🌙';
+      themeText.textContent = 'Sombre';
+    }
+  }
+
+  // Préférence enregistrée, sinon mode sombre par défaut
+  var savedTheme = localStorage.getItem('archverse_theme') || 'dark';
+  setTheme(savedTheme);
+
+  toggleBtn.addEventListener('click', function(){
+    var current = document.documentElement.getAttribute('data-theme');
+    setTheme(current === 'light' ? 'dark' : 'light');
+  });
+})();
+</script>
+
 </body>
 </html>

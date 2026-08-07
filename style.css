@@ -1,15 +1,92 @@
+/* ─── VARIABLES DE THÈME ─── */
+:root, [data-theme="dark"] {
+  --bg-body: #0a0a12;
+  --bg-header: linear-gradient(to bottom, #0d0d1a, #0a0a12);
+  --bg-card: #11111a;
+  --bg-card-border: #1a1a2a;
+  --bg-filters: rgba(10, 10, 18, 0.92);
+  --bg-modal: linear-gradient(145deg, #14141f, #0d0d16);
+  --bg-btn-episode: #1a1a28;
+  --bg-filter-btn: transparent;
+  
+  --text-main: #ffffff;
+  --text-sub: #f5c518;
+  --text-muted: #888888;
+  --text-bio: #999999;
+  --text-footer: #555555;
+  --border-subtle: #2a2a3a;
+  
+  --accent-red: #e62429;
+  --accent-gold: #f5c518;
+  --shadow-color: rgba(230, 36, 41, 0.35);
+  
+  --web-opacity: 0.08;
+}
+
+[data-theme="light"] {
+  --bg-body: #f4f5f9;
+  --bg-header: linear-gradient(to bottom, #ffffff, #f4f5f9);
+  --bg-card: #ffffff;
+  --bg-card-border: #e2e8f0;
+  --bg-filters: rgba(244, 245, 249, 0.92);
+  --bg-modal: linear-gradient(145deg, #ffffff, #f8fafc);
+  --bg-btn-episode: #f1f5f9;
+  --bg-filter-btn: #ffffff;
+  
+  --text-main: #0f172a;
+  --text-sub: #d97706;
+  --text-muted: #64748b;
+  --text-bio: #475569;
+  --text-footer: #94a3b8;
+  --border-subtle: #cbd5e1;
+  
+  --accent-red: #e62429;
+  --accent-gold: #d97706;
+  --shadow-color: rgba(230, 36, 41, 0.2);
+  
+  --web-opacity: 0.18;
+}
+
+/* ─── BASE ─── */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body {
-  background: #0a0a12;
-  color: #fff;
+  background: var(--bg-body);
+  color: var(--text-main);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* ─── BOUTON DE BASCULEMENT DE THÈME ─── */
+/* position fixed + z-index élevé : reste visible même par-dessus
+   l'écran de connexion (.auth-gate a z-index:1000) */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  left: 20px;
+  z-index: 1100;
+  background: var(--bg-btn-episode);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 8px 14px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent-red);
 }
 
 /* ─── SPIDER-WEB DECORATIONS ─── */
@@ -19,7 +96,7 @@ body {
   height: 120px;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.08;
+  opacity: var(--web-opacity);
 }
 .spider-web::before {
   content: "🕸";
@@ -33,7 +110,7 @@ body {
 header {
   text-align: center;
   padding: 40px 20px 20px;
-  background: linear-gradient(to bottom, #0d0d1a, #0a0a12);
+  background: var(--bg-header);
   position: relative;
   overflow: hidden;
 }
@@ -45,7 +122,7 @@ header::before {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(ellipse at center, rgba(230,36,41,0.03) 0%, transparent 60%);
+  background: radial-gradient(ellipse at center, rgba(230,36,41,0.05) 0%, transparent 60%);
   animation: pulseGlow 6s ease-in-out infinite;
   pointer-events: none;
 }
@@ -71,7 +148,7 @@ header::before {
   font-family: 'Orbitron', 'Bebas Neue', sans-serif;
   font-size: 5.2rem;
   letter-spacing: 12px;
-  color: #e62429;
+  color: var(--accent-red);
   text-shadow:
     0 0 40px rgba(230, 36, 41, 0.45),
     0 0 80px rgba(230, 36, 41, 0.15);
@@ -87,7 +164,7 @@ header::before {
   left: 10%;
   width: 80%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #e62429, #f5c518, #e62429, transparent);
+  background: linear-gradient(90deg, transparent, var(--accent-red), var(--accent-gold), var(--accent-red), transparent);
   border-radius: 2px;
 }
 
@@ -95,21 +172,21 @@ header::before {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1.1rem;
   letter-spacing: 8px;
-  color: #f5c518;
+  color: var(--text-sub);
   margin-top: 4px;
   text-shadow: 0 0 20px rgba(245, 197, 24, 0.2);
 }
 
 .creator {
   font-size: 1rem;
-  color: #888;
+  color: var(--text-muted);
   letter-spacing: 3px;
   font-weight: 500;
   margin-top: 6px;
 }
 
 .bio {
-  color: #999;
+  color: var(--text-bio);
   font-size: 1rem;
   line-height: 1.6;
   max-width: 520px;
@@ -136,9 +213,9 @@ header::before {
 .header-stars {
   margin-top: 10px;
   font-size: 1.2rem;
-  color: #f5c518;
+  color: var(--accent-gold);
   letter-spacing: 10px;
-  opacity: 0.6;
+  opacity: 0.7;
   animation: twinkle 4s ease-in-out infinite;
 }
 
@@ -177,7 +254,7 @@ header::before {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
   animation: btnShine 4s ease-in-out infinite;
 }
 
@@ -199,16 +276,16 @@ header::before {
   padding: 12px 20px;
   position: sticky;
   top: 0;
-  background: rgba(10, 10, 18, 0.92);
+  background: var(--bg-filters);
   z-index: 50;
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(230, 36, 41, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .filter-btn {
-  background: transparent;
-  border: 1px solid #2a2a3a;
-  color: #999;
+  background: var(--bg-filter-btn);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
   padding: 7px 20px;
   border-radius: 50px;
   cursor: pointer;
@@ -219,15 +296,15 @@ header::before {
 
 .filter-btn:hover {
   background: rgba(230, 36, 41, 0.1);
-  border-color: #e62429;
-  color: #fff;
+  border-color: var(--accent-red);
+  color: var(--text-main);
 }
 
 .filter-btn.active {
-  background: #e62429;
-  border-color: #e62429;
+  background: var(--accent-red);
+  border-color: var(--accent-red);
   color: white;
-  box-shadow: 0 4px 20px rgba(230, 36, 41, 0.35);
+  box-shadow: 0 4px 20px var(--shadow-color);
 }
 
 /* ─── GRID ─── */
@@ -246,16 +323,16 @@ header::before {
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
-  background: #111;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  background: var(--bg-card);
   aspect-ratio: 2/3;
-  border: 1px solid #1a1a2a;
+  border: 1px solid var(--bg-card-border);
 }
 
 .card:hover {
   transform: translateY(-10px) scale(1.04);
-  box-shadow: 0 25px 50px rgba(230, 36, 41, 0.3);
-  border-color: #e62429;
+  box-shadow: 0 20px 40px var(--shadow-color);
+  border-color: var(--accent-red);
 }
 
 .card img {
@@ -273,11 +350,12 @@ header::before {
 .card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.2) 40%, transparent 60%);
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 40%, transparent 60%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 14px;
+  color: #ffffff; /* Conserver le texte blanc sur l'overlay pour la lisibilité */
 }
 
 .card-title {
@@ -293,15 +371,15 @@ header::before {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #e62429;
+  background: rgba(0, 0, 0, 0.85);
+  color: var(--accent-red);
   padding: 2px 10px;
   border-radius: 4px;
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  border: 1px solid rgba(230,36,41,0.3);
+  border: 1px solid rgba(230,36,41,0.4);
   z-index: 2;
 }
 
@@ -325,13 +403,13 @@ header::before {
   position: absolute;
   top: 28px;
   left: 8px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #f5c518;
+  background: rgba(0, 0, 0, 0.85);
+  color: var(--accent-gold);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.55rem;
   font-weight: 600;
-  border: 1px solid rgba(245, 197, 24, 0.3);
+  border: 1px solid rgba(245, 197, 24, 0.4);
   z-index: 2;
   max-width: calc(100% - 16px);
   overflow: hidden;
@@ -341,7 +419,7 @@ header::before {
 
 .card-note {
   font-size: 0.65rem;
-  color: #f5c518;
+  color: var(--accent-gold);
   margin-top: 2px;
   font-style: italic;
 }
@@ -350,13 +428,13 @@ header::before {
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.88);
+  background: rgba(0,0,0,0.8);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 100;
   padding: 20px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
 }
 
 .modal.active {
@@ -364,7 +442,7 @@ header::before {
 }
 
 .modal-content {
-  background: linear-gradient(145deg, #14141f, #0d0d16);
+  background: var(--bg-modal);
   border-radius: 18px;
   width: 100%;
   max-width: 480px;
@@ -372,8 +450,9 @@ header::before {
   overflow-y: auto;
   padding: 30px;
   position: relative;
-  border: 1px solid #2a2a3a;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  color: var(--text-main);
 }
 
 .close-btn {
@@ -382,7 +461,7 @@ header::before {
   right: 18px;
   background: none;
   border: none;
-  color: #e62429;
+  color: var(--accent-red);
   font-size: 2.2rem;
   cursor: pointer;
   line-height: 1;
@@ -397,7 +476,7 @@ header::before {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1.7rem;
   margin-bottom: 18px;
-  color: #e62429;
+  color: var(--accent-red);
   padding-right: 30px;
   line-height: 1.2;
 }
@@ -409,9 +488,9 @@ header::before {
 }
 
 .episode-btn {
-  background: #1a1a28;
-  border: 1px solid #2a2a3a;
-  color: #ddd;
+  background: var(--bg-btn-episode);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
   padding: 12px 16px;
   border-radius: 8px;
   text-align: left;
@@ -421,8 +500,8 @@ header::before {
 }
 
 .episode-btn:hover {
-  background: #e62429;
-  border-color: #e62429;
+  background: var(--accent-red);
+  border-color: var(--accent-red);
   color: white;
   transform: translateX(4px);
 }
@@ -431,10 +510,10 @@ header::before {
 footer {
   text-align: center;
   padding: 24px;
-  color: #444;
+  color: var(--text-footer);
   font-size: 0.8rem;
   letter-spacing: 1px;
-  border-top: 1px solid #1a1a2a;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .footer-spidey {
@@ -452,15 +531,21 @@ footer {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a12;
+  background: var(--bg-body);
 }
 ::-webkit-scrollbar-thumb {
-  background: #e62429;
+  background: var(--accent-red);
   border-radius: 3px;
 }
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 600px) {
+  .theme-toggle {
+    top: 10px;
+    left: 10px;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
   .logo { font-size: 3rem; letter-spacing: 6px; }
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
