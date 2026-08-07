@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
 <style>
-/* ============ GATE D'AUTHENTIFICATION (intégrée) ============ */
+/* ============ GATE D'AUTHENTIFICATION ============ */
 .auth-gate{
   position: fixed; inset: 0; z-index: 1000;
   display: flex; align-items: center; justify-content: center;
@@ -22,25 +22,7 @@
 body.authed .auth-gate{ display: none; }
 body:not(.authed){ overflow: hidden; }
 
-.gate-glow{
-  position: fixed; top: -20%; left: 50%;
-  width: 140%; height: 90%;
-  transform: translateX(-50%) rotate(6deg);
-  background: linear-gradient(180deg, rgba(230,36,41,0.16), transparent 65%);
-  filter: blur(12px);
-  pointer-events: none;
-  animation: gateSweep 8s ease-in-out infinite;
-}
-@keyframes gateSweep{
-  0%,100%{ opacity:.4;  transform: translateX(-52%) rotate(5deg); }
-  50%    { opacity:.8;  transform: translateX(-48%) rotate(9deg); }
-}
-
-.gate-card{
-  position: relative; z-index: 2;
-  width: 100%; max-width: 400px;
-  text-align: center;
-}
+.gate-card{ position: relative; z-index: 2; width: 100%; max-width: 400px; text-align: center; }
 .gate-eyebrow{
   font-family: 'Orbitron', monospace;
   font-size: 11px; letter-spacing: .35em;
@@ -114,8 +96,12 @@ body:not(.authed){ overflow: hidden; }
 .auth-gate .msg.error{
   display: block; background: rgba(196,67,43,.12); border: 1px solid rgba(196,67,43,.4); color: #f0a596;
 }
+/* ✅ Succès en VERT — plus de rouge pour ne pas confondre avec une erreur */
 .auth-gate .msg.success{
-  display: block; background: rgba(230,36,41,.1); border: 1px solid rgba(230,36,41,.4); color: #e62429;
+  display: block;
+  background: rgba(46,160,67,.12);
+  border: 1px solid rgba(46,160,67,.45);
+  color: #3fb950;
 }
 .gate-status{
   margin-top: 18px; font-family: monospace; font-size: 12px;
@@ -124,13 +110,10 @@ body:not(.authed){ overflow: hidden; }
 .gate-status .dot{
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
   background: #e62429; margin-right: 8px; box-shadow: 0 0 8px #e62429;
-  animation: blink 1s ease-in-out infinite;
 }
-@keyframes blink{ 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
 .gate-foot{
   margin-top: 20px; font-size: 11px; color: #55525f; line-height: 1.6; text-align: center;
 }
-.gate-foot code{ font-family: monospace; color: #8a8790; }
 
 .logout-btn{
   display: inline-block; margin-top: 10px; padding: 6px 12px;
@@ -141,14 +124,12 @@ body:not(.authed){ overflow: hidden; }
 .logout-btn:hover{ color: #e62429; border-color: #e62429; }
 
 @media (max-width: 480px){ .gate-card{ max-width: 340px; } }
-@media (prefers-reduced-motion: reduce){ .gate-glow, .gate-status .dot{ animation: none; } }
 </style>
 </head>
 <body>
 
 <!-- ============ GATE D'AUTHENTIFICATION ============ -->
 <div class="auth-gate" id="authGate">
-  <div class="gate-glow"></div>
   <div class="gate-card">
     <div class="gate-eyebrow">Accès héros seulement</div>
     <div class="gate-title">ENTRE DANS<br><span>L'UNIVERS</span></div>
@@ -189,7 +170,6 @@ body:not(.authed){ overflow: hidden; }
 <div class="spider-web top-left"></div>
 <div class="spider-web top-right"></div>
 
-<!-- HEADER -->
 <header>
   <div class="mjolnir">⚡</div>
   <div class="logo">ARCH'VERSE</div>
@@ -204,7 +184,6 @@ body:not(.authed){ overflow: hidden; }
   </div>
 </header>
 
-<!-- DISCORD -->
 <div class="discord-section">
   <a href="https://discord.gg/FcSMrZezJ" target="_blank" class="discord-btn">
     <span class="discord-icon">🎧</span>
@@ -212,17 +191,14 @@ body:not(.authed){ overflow: hidden; }
   </a>
 </div>
 
-<!-- FILTERS -->
 <div class="filters">
   <button class="filter-btn active" data-filter="all">✦ Tout</button>
   <button class="filter-btn" data-filter="movie">▸ Films</button>
   <button class="filter-btn" data-filter="series">▸ Séries</button>
 </div>
 
-<!-- GRID -->
 <div class="grid" id="grid"></div>
 
-<!-- MODAL SÉRIE -->
 <div class="modal" id="modal">
   <div class="modal-content">
     <button class="close-btn" id="closeModal">×</button>
@@ -237,33 +213,37 @@ body:not(.authed){ overflow: hidden; }
 </footer>
 
 <script src="script.js"></script>
-<script type="module">
-} else {
-          const { data, error } = await supabase.auth.signUp({ email, password });
-          if (error) throw error;
-          if (data.session){
-            showMsg('Compte créé. Bienvenue !', 'success');
-            setTimeout(unlock, 600);
-          } else {
-            // 1) on repasse d'abord en mode connexion (ce qui vide le message)
-            setMode('login');
-            // 2) PUIS on affiche le message, il ne sera plus effacé
-            showMsg('Compte créé ! Vérifie ta boîte mail, confirme ton adresse, puis connecte-toi.', 'success');
-          }
-        }
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-  // ---- CONFIGURATION SUPABASE ----
-  // ⚠️ URL de l'API du projet (PAS l'URL du dashboard) :
-  // Dashboard > Project Settings > API  →  https://<project-ref>.supabase.co
+<!-- 1) Chargement Supabase (script classique + fallback CDN) -->
+<script>
+  function chargerSupabase(src){
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = function(){
+      window.__supabaseOk = true;
+      if (window.__supabasePret) window.__supabasePret();
+    };
+    s.onerror = function(){
+      if (src.indexOf('jsdelivr') !== -1){
+        chargerSupabase('https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js');
+      } else {
+        var m = document.getElementById('msgBox');
+        if (m){ m.textContent = 'Impossible de charger Supabase. Vérifie ta connexion puis recharge la page.'; m.className = 'msg error'; }
+      }
+    };
+    document.head.appendChild(s);
+  }
+  chargerSupabase('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js');
+</script>
+
+<!-- 2) Logique d'authentification -->
+<script>
+  // ---- CONFIGURATION ----
   const SUPABASE_URL = 'https://fdycxfjaljuuaqdwmcuu.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr';
-  // REDIRECT_URL vide = on reste sur cette page après connexion.
-  // Sinon, mets une URL (ex: 'https://mcu-stream.netlify.app/') pour rediriger.
+  // Laisse vide pour rester sur cette page. Sinon mets ton URL Netlify.
   const REDIRECT_URL = '';
-  // ---------------------------------
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // -----------------------
 
   const form = document.getElementById('authForm');
   const emailInput = document.getElementById('email');
@@ -276,31 +256,17 @@ body:not(.authed){ overflow: hidden; }
   const pwToggle = document.getElementById('pwToggle');
   const logoutBtn = document.getElementById('logoutBtn');
 
-  let mode = 'login'; // 'login' | 'signup'
+  let supabase = null;
+  let mode = 'login';
 
   function setMode(newMode){
     mode = newMode;
     tabLogin.classList.toggle('active', mode === 'login');
     tabSignup.classList.toggle('active', mode === 'signup');
-    if (mode === 'login'){
-      submitBtn.textContent = 'Entrer dans la salle';
-      passwordInput.autocomplete = 'current-password';
-    } else {
-      submitBtn.textContent = 'Créer mon accès';
-      passwordInput.autocomplete = 'new-password';
-    }
+    submitBtn.textContent = mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès';
+    passwordInput.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
     hideMsg();
   }
-
-  tabLogin.addEventListener('click', () => setMode('login'));
-  tabSignup.addEventListener('click', () => setMode('signup'));
-
-  pwToggle.addEventListener('click', () => {
-    const isPw = passwordInput.type === 'password';
-    passwordInput.type = isPw ? 'text' : 'password';
-    pwToggle.textContent = isPw ? 'MASQUER' : 'AFFICHER';
-  });
-
   function showMsg(text, type){
     msgBox.textContent = text;
     msgBox.className = 'msg ' + type;
@@ -313,77 +279,16 @@ body:not(.authed){ overflow: hidden; }
     submitBtn.disabled = loading;
     submitBtn.textContent = loading ? 'Un instant…' : (mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès');
   }
-
-  // Déverrouille la page (et redirige si REDIRECT_URL est défini)
   function unlock(){
     document.body.classList.add('authed');
     if (REDIRECT_URL) window.location.href = REDIRECT_URL;
   }
-
-  // Affiche le formulaire une fois la vérification de session terminée
+  // Le formulaire s'affiche immédiatement — jamais d'écran bloqué
   function showForm(){
     gateStatus.style.display = 'none';
     form.style.display = 'block';
   }
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    hideMsg();
-
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-
-    if (!email || !password){
-      showMsg('Email et mot de passe sont requis.', 'error');
-      return;
-    }
-    if (password.length < 8){
-      showMsg('Le mot de passe doit contenir au moins 8 caractères.', 'error');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      if (mode === 'login'){
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        showMsg('Connexion réussie. Bienvenue !', 'success');
-        setTimeout(unlock, 600);
-      } else {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        if (data.session){
-          showMsg('Compte créé. Bienvenue !', 'success');
-          setTimeout(unlock, 600);
-        } else {
-          showMsg('Compte créé. Vérifie ta boîte mail pour confirmer ton adresse avant de te connecter.', 'success');
-          setMode('login');
-        }
-      }
-    } catch (err){
-      showMsg(traduireErreur(err.message), 'error');
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  // Si une session valide existe déjà, on déverrouille directement.
-  supabase.auth.getSession().then(({ data }) => {
-    if (data.session){
-      unlock();
-    } else {
-      showForm();
-    }
-  });
-
-  logoutBtn.addEventListener('click', async () => {
-    try { await supabase.auth.signOut(); } catch (e) {}
-    document.body.classList.remove('authed');
-    form.reset();
-    hideMsg();
-    setMode('login');
-    showForm();
-  });
+  showForm();
 
   function traduireErreur(msg){
     const map = {
@@ -394,6 +299,90 @@ body:not(.authed){ overflow: hidden; }
     };
     return map[msg] || msg || 'Une erreur est survenue, réessaie.';
   }
+
+  function demarrer(){
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Session déjà active (ou lien de confirmation cliqué) → déverrouillage en arrière-plan
+    supabase.auth.getSession()
+      .then(({ data }) => { if (data.session) unlock(); })
+      .catch(() => {});
+
+    tabLogin.addEventListener('click', () => setMode('login'));
+    tabSignup.addEventListener('click', () => setMode('signup'));
+
+    pwToggle.addEventListener('click', () => {
+      const isPw = passwordInput.type === 'password';
+      passwordInput.type = isPw ? 'text' : 'password';
+      pwToggle.textContent = isPw ? 'MASQUER' : 'AFFICHER';
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      try { await supabase.auth.signOut(); } catch (e) {}
+      document.body.classList.remove('authed');
+      form.reset();
+      hideMsg();
+      setMode('login');
+      showForm();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMsg();
+
+      if (!supabase){
+        showMsg('Supabase charge encore, réessaie dans 2 secondes.', 'error');
+        return;
+      }
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password){
+        showMsg('Email et mot de passe sont requis.', 'error');
+        return;
+      }
+      if (password.length < 8){
+        showMsg('Le mot de passe doit contenir au moins 8 caractères.', 'error');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        if (mode === 'login'){
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          showMsg('Connexion réussie. Bienvenue !', 'success'); // ✅ vert
+          setTimeout(unlock, 600);
+        } else {
+          // Le lien de confirmation du mail reviendra sur la page courante
+          // (sur Netlify → ton domaine, plus localhost)
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: REDIRECT_URL || window.location.origin
+            }
+          });
+          if (error) throw error;
+          if (data.session){
+            showMsg('Compte créé. Bienvenue !', 'success'); // ✅ vert
+            setTimeout(unlock, 600);
+          } else {
+            setMode('login'); // on repasse en Connexion d'abord…
+            showMsg('Compte créé ! Vérifie ta boîte mail, confirme ton adresse, puis connecte-toi.', 'success'); // ✅ vert, et il ne disparaît plus
+          }
+        }
+      } catch (err){
+        showMsg(traduireErreur(err.message), 'error');
+      } finally {
+        setLoading(false);
+      }
+    });
+  }
+
+  if (window.__supabaseOk) demarrer();
+  else window.__supabasePret = demarrer;
 </script>
 </body>
 </html>
