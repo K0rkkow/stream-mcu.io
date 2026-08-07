@@ -96,7 +96,6 @@ body:not(.authed){ overflow: hidden; }
 .auth-gate .msg.error{
   display: block; background: rgba(196,67,43,.12); border: 1px solid rgba(196,67,43,.4); color: #f0a596;
 }
-/* ✅ Succès en VERT — le rouge ne sert qu'aux vraies erreurs */
 .auth-gate .msg.success{
   display: block;
   background: rgba(46,160,67,.12);
@@ -107,18 +106,42 @@ body:not(.authed){ overflow: hidden; }
   margin-top: 20px; font-size: 11px; color: #55525f; line-height: 1.6; text-align: center;
 }
 
-.logout-btn{
-  display: inline-block; margin-top: 10px; padding: 6px 12px;
-  background: none; border: 1px solid #2c2730; border-radius: 6px;
-  color: #8a8790; font-family: 'Inter', sans-serif; font-size: 11px; cursor: pointer;
-  transition: all .15s ease;
+/* ============ BARRE UTILISATEUR (haut droite) ============ */
+.user-bar{
+  position: fixed; top: 14px; right: 14px; z-index: 900;
+  display: none; align-items: center; gap: 10px;
+  background: rgba(23,21,26,.92);
+  border: 1px solid #2c2730; border-radius: 999px;
+  padding: 6px 8px 6px 14px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 18px rgba(0,0,0,.35);
 }
-.logout-btn:hover{ color: #e62429; border-color: #e62429; }
+.user-bar .user-icon{
+  font-size: 13px;
+}
+.user-bar .user-name{
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600; color: #f5f2ec;
+  max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.user-bar .user-logout{
+  background: none; border: 1px solid #2c2730; border-radius: 999px;
+  color: #8a8790; font-family: 'Inter', sans-serif; font-size: 11px;
+  padding: 5px 12px; cursor: pointer; transition: all .15s ease;
+}
+.user-bar .user-logout:hover{ color: #e62429; border-color: #e62429; }
 
-@media (max-width: 480px){ .gate-card{ max-width: 340px; } }
+@media (max-width: 480px){ .gate-card{ max-width: 340px; } .user-bar{ top: 10px; right: 10px; } }
 </style>
 </head>
 <body>
+
+<!-- ============ BARRE UTILISATEUR (visible une fois connecté) ============ -->
+<div class="user-bar" id="userBar">
+  <span class="user-icon">⚡</span>
+  <span class="user-name" id="userName">…</span>
+  <button class="user-logout" id="logoutBtn" type="button">Se déconnecter</button>
+</div>
 
 <!-- ============ GATE D'AUTHENTIFICATION ============ -->
 <div class="auth-gate" id="authGate">
@@ -200,7 +223,6 @@ body:not(.authed){ overflow: hidden; }
 
 <footer>
   <p>ARCH'VERSE <span class="footer-spidey">🕷</span> by k0rkoww × heiwa'stream <span class="footer-spidey">🕸</span></p>
-  <button class="logout-btn" id="logoutBtn" type="button">Se déconnecter</button>
 </footer>
 
 <script src="script.js"></script>
@@ -248,19 +270,19 @@ body:not(.authed){ overflow: hidden; }
   const tabSignup = $('tabSignup');
   const pwToggle = $('pwToggle');
   const logoutBtn = $('logoutBtn');
+  const userBar = $('userBar');
+  const userName = $('userName');
 
   let mode = 'login';
   let supabase = null;
   let demarre = false;
 
-  // "Jean-Pierre 42" -> "jean_pierre_42"
   function normaliser(u){
     return (u || '').trim().toLowerCase()
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9_]+/g, '_')
       .replace(/^_+|_+$/g, '');
   }
-  // Email interne généré à partir du pseudo (jamais affiché, jamais confirmé)
   function emailGenere(u){ return u + '@archverse.app'; }
 
   function setMode(m){
@@ -283,17 +305,39 @@ body:not(.authed){ overflow: hidden; }
     submitBtn.disabled = b;
     submitBtn.textContent = b ? 'Un instant…' : (mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès');
   }
-  function unlock(){
+
+  // Affiche le pseudo en haut à droite (depuis user_metadata, repli sur la table profiles)
+  function afficherPseudo(user){
+    if (!user) return;
+    var pseudo = (user.user_metadata && user.user_metadata.username) || '';
+    if (pseudo){
+      userName.textContent = pseudo;
+      return;
+    }
+    try {
+      supabase.from('profiles').select('username').eq('id', user.id).maybeSingle().then(function(res){
+        if (res && res.data && res.data.username) userName.textContent = res.data.username;
+      }).catch(function(){});
+    } catch (ign) {}
+  }
+
+  function unlock(user){
+    userBar.style.display = 'flex';      // barre utilisateur en haut
+    afficherPseudo(user);
     document.body.classList.add('authed');
     if (REDIRECT_URL) window.location.href = REDIRECT_URL;
   }
+
   function traduireErreur(msg){
     msg = msg || '';
     if (/duplicate key|unique constraint/i.test(msg)) return "Ce nom d'utilisateur est déjà pris.";
+    if (/email rate limit|over_email_send_rate_limit/i.test(msg))
+      return "Trop d'emails envoyés récemment. Attends quelques minutes, puis réessaie.";
+    if (/rate limit|too many requests/i.test(msg))
+      return "Trop de tentatives. Attends quelques minutes, puis réessaie.";
     var map = {
       'USERNAME_TAKEN': "Ce nom d'utilisateur est déjà pris.",
       'Invalid login credentials': "Nom d'utilisateur ou mot de passe incorrect.",
-      'Email not confirmed': "Compte non confirmé. Désactive 'Confirm email' dans Supabase (Authentication → Sign In / Up) puis réessaie.",
       'User already registered': "Ce nom d'utilisateur est déjà pris.",
       'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 8 caractères.',
       'Failed to fetch': 'Pas de connexion. Vérifie ta connexion internet puis recharge.'
@@ -304,7 +348,7 @@ body:not(.authed){ overflow: hidden; }
     return msg || 'Une erreur est survenue, réessaie.';
   }
 
-  /* ====== BOUTONS : attachés IMMÉDIATEMENT, ils marchent toujours ====== */
+  /* ====== BOUTONS : attachés immédiatement ====== */
   tabLogin.addEventListener('click', function(){ setMode('login'); });
   tabSignup.addEventListener('click', function(){ setMode('signup'); });
 
@@ -312,6 +356,17 @@ body:not(.authed){ overflow: hidden; }
     var estMdp = passwordInput.type === 'password';
     passwordInput.type = estMdp ? 'text' : 'password';
     pwToggle.textContent = estMdp ? 'MASQUER' : 'AFFICHER';
+  });
+
+  // Déconnexion : bouton en haut à droite
+  logoutBtn.addEventListener('click', async function(){
+    try { if (supabase) await supabase.auth.signOut(); } catch (ign) {}
+    document.body.classList.remove('authed');
+    userBar.style.display = 'none';
+    userName.textContent = '…';
+    form.reset();
+    hideMsg();
+    setMode('login');
   });
 
   form.addEventListener('submit', async function(e){
@@ -342,43 +397,39 @@ body:not(.authed){ overflow: hidden; }
     setLoading(true);
     try {
       if (mode === 'login'){
-        // 1) retrouve l'email lié au pseudo (sinon on retombe sur l'email généré)
         var email = emailGenere(username);
         try {
           var res = await supabase.from('profiles').select('email').eq('username', username).maybeSingle();
           if (res.data && res.data.email) email = res.data.email;
         } catch (ign) {}
-        // 2) connexion
         var login = await supabase.auth.signInWithPassword({ email: email, password: password });
         if (login.error) throw login.error;
-        showMsg('Connexion réussie. Bienvenue !', 'success'); // ✅ vert
-        setTimeout(unlock, 500);
+        showMsg('Connexion réussie. Bienvenue !', 'success');
+        setTimeout(function(){ unlock(login.data.user); }, 500);
       } else {
-        // création de compte : pseudo + mdp seulement
         try {
           var verif = await supabase.from('profiles').select('id').eq('username', username).maybeSingle();
           if (verif.data) throw new Error('USERNAME_TAKEN');
         } catch (err) {
-          if (err && err.message === 'USERNAME_TAKEN') throw err; // pseudo pris
-          // table absente = pas grave, on continue
+          if (err && err.message === 'USERNAME_TAKEN') throw err;
         }
 
         var signup = await supabase.auth.signUp({
           email: emailGenere(username),
           password: password,
           options: {
-            data: { username: username }, // le trigger crée le profil
+            data: { username: username },
             emailRedirectTo: REDIRECT_URL || window.location.origin
           }
         });
         if (signup.error) throw signup.error;
 
         if (signup.data.session){
-          showMsg('Compte créé. Bienvenue !', 'success'); // ✅ vert
-          setTimeout(unlock, 500);
+          showMsg('Compte créé. Bienvenue !', 'success');
+          setTimeout(function(){ unlock(signup.data.user); }, 500);
         } else {
-          setMode('login'); // on repasse en Connexion d'abord…
-          showMsg('Compte créé ! Mais "Confirm email" est encore activé sur Supabase : désactive-le (Authentication → Sign In / Up → Email) pour un accès direct.', 'error'); // …puis le message s'affiche (et ne disparaît plus)
+          setMode('login');
+          showMsg('Compte créé ! Mais "Confirm email" est encore activé sur Supabase : désactive-le (Authentication → Sign In / Up → Email) pour un accès direct.', 'error');
         }
       }
     } catch (err){
@@ -388,33 +439,22 @@ body:not(.authed){ overflow: hidden; }
     }
   });
 
-  logoutBtn.addEventListener('click', async function(){
-    try { if (supabase) await supabase.auth.signOut(); } catch (ign) {}
-    document.body.classList.remove('authed');
-    form.reset();
-    hideMsg();
-    setMode('login');
-  });
-
-  /* ====== Démarrage Supabase (en arrière-plan, sans bloquer l'UI) ====== */
+  /* ====== Démarrage (en arrière-plan) ====== */
   function initAuth(){
     if (demarre) return;
     demarre = true;
     try {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      // Session déjà active → on déverrouille tout seul
       supabase.auth.getSession().then(function(res){
-        if (res && res.data && res.data.session) unlock();
+        if (res && res.data && res.data.session) unlock(res.data.session.user);
       }).catch(function(){});
     } catch (err){
       showMsg('Erreur de démarrage : ' + err.message, 'error');
     }
   }
 
-  // Le formulaire s'affiche IMMÉDIATEMENT (plus d'écran "Vérification de session…" bloqué)
   form.style.display = 'block';
 
-  // Filet de sécurité : on attend que la lib Supabase soit disponible
   var essais = 0;
   var minuteur = setInterval(function(){
     if (window.supabase){ clearInterval(minuteur); initAuth(); }
@@ -424,7 +464,6 @@ body:not(.authed){ overflow: hidden; }
     }
   }, 200);
 
-  // Si la lib était déjà chargée avant ce script
   if (window.supabase) initAuth();
 })();
 </script>
