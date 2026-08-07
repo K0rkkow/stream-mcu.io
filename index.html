@@ -63,7 +63,7 @@ body:not(.authed){ overflow: hidden; }
   text-transform: uppercase; color: #8a8790; margin: 0 0 7px;
 }
 .auth-gate .gate-field{ margin-bottom: 14px; }
-.auth-gate input[type="email"], .auth-gate input[type="password"], .auth-gate input[type="text"]{
+.auth-gate input[type="text"], .auth-gate input[type="password"]{
   width: 100%; padding: 12px 13px;
   background: #17151a; border: 1px solid #2c2730; border-radius: 8px;
   color: #f5f2ec; font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
@@ -103,14 +103,6 @@ body:not(.authed){ overflow: hidden; }
   border: 1px solid rgba(46,160,67,.45);
   color: #3fb950;
 }
-.gate-status{
-  margin-top: 18px; font-family: monospace; font-size: 12px;
-  color: #8a8790; letter-spacing: .08em;
-}
-.gate-status .dot{
-  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background: #e62429; margin-right: 8px; box-shadow: 0 0 8px #e62429;
-}
 .gate-foot{
   margin-top: 20px; font-size: 11px; color: #55525f; line-height: 1.6; text-align: center;
 }
@@ -139,18 +131,14 @@ body:not(.authed){ overflow: hidden; }
     </div>
 
     <div class="gate-tabs">
-      <button type="button" class="active" id="gateTabLogin">Connexion</button>
-      <button type="button" id="gateTabSignup">Créer un compte</button>
+      <button type="button" class="active" id="tabLogin">Connexion</button>
+      <button type="button" id="tabSignup">Créer un compte</button>
     </div>
 
     <form id="authForm" novalidate>
       <div class="gate-field">
-        <label for="username">Nom d'utilisateur</label>
-        <input type="text" id="username" name="username" placeholder="ton_pseudo" autocomplete="username" minlength="3" maxlength="20" required />
-      </div>
-      <div class="gate-field" id="emailField">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="toi@exemple.com" autocomplete="email" />
+        <label for="username">Pseudo</label>
+        <input type="text" id="username" name="username" placeholder="ton_pseudo" autocomplete="username" maxlength="20" required />
       </div>
       <div class="gate-field">
         <label for="password">Mot de passe</label>
@@ -163,7 +151,6 @@ body:not(.authed){ overflow: hidden; }
       <div class="msg" id="msgBox"></div>
     </form>
 
-    <p class="gate-status" id="gateStatus"><span class="dot"></span>Vérification de session…</p>
     <p class="gate-foot">
       Connexion chiffrée via Supabase Auth.<br>Aucun mot de passe n'est stocké en clair.
     </p>
@@ -218,213 +205,228 @@ body:not(.authed){ overflow: hidden; }
 
 <script src="script.js"></script>
 
-<!-- 1) Chargement Supabase (script classique + fallback CDN, marche même en double-clic) -->
+<!-- 1) Chargement Supabase : script classique (marche en double-clic) + fallback CDN -->
 <script>
-  function chargerSupabase(src){
+(function(){
+  function charger(src){
     var s = document.createElement('script');
     s.src = src;
-    s.onload = function(){
-      window.__supabaseOk = true;
-      if (window.__supabasePret) window.__supabasePret();
-    };
     s.onerror = function(){
       if (src.indexOf('jsdelivr') !== -1){
-        chargerSupabase('https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js');
+        charger('https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js');
       } else {
         var m = document.getElementById('msgBox');
-        if (m){ m.textContent = 'Impossible de charger Supabase. Vérifie ta connexion puis recharge la page.'; m.className = 'msg error'; }
+        if (m){ m.textContent = 'Impossible de charger Supabase. Vérifie ta connexion puis recharge.'; m.className = 'msg error'; }
       }
     };
     document.head.appendChild(s);
   }
-  chargerSupabase('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js');
+  charger('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js');
+})();
 </script>
 
-<!-- 2) Logique d'authentification -->
+<!-- 2) Logique d'authentification : pseudo + mot de passe -->
 <script>
+(function(){
+  'use strict';
+
+  function $(id){ return document.getElementById(id); }
+
   // ---- CONFIGURATION ----
   const SUPABASE_URL = 'https://fdycxfjaljuuaqdwmcuu.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr';
-  // Laisse vide pour rester sur cette page. Sinon mets ton URL Netlify.
+  // Laisse vide pour rester sur cette page. Sinon : 'https://mcu-stream.netlify.app/'
   const REDIRECT_URL = '';
   // -----------------------
 
-  const form = document.getElementById('authForm');
-  const usernameInput = document.getElementById('username');
-  const emailInput = document.getElementById('email');
-  const emailField = document.getElementById('emailField');
-  const passwordInput = document.getElementById('password');
-  const submitBtn = document.getElementById('submitBtn');
-  const msgBox = document.getElementById('msgBox');
-  const gateStatus = document.getElementById('gateStatus');
-  const tabLogin = document.getElementById('gateTabLogin');
-  const tabSignup = document.getElementById('gateTabSignup');
-  const pwToggle = document.getElementById('pwToggle');
-  const logoutBtn = document.getElementById('logoutBtn');
+  const form = $('authForm');
+  const usernameInput = $('username');
+  const passwordInput = $('password');
+  const submitBtn = $('submitBtn');
+  const msgBox = $('msgBox');
+  const tabLogin = $('tabLogin');
+  const tabSignup = $('tabSignup');
+  const pwToggle = $('pwToggle');
+  const logoutBtn = $('logoutBtn');
 
-  let supabase = null;
   let mode = 'login';
+  let supabase = null;
+  let demarre = false;
 
-  function setMode(newMode){
-    mode = newMode;
+  // "Jean-Pierre 42" -> "jean_pierre_42"
+  function normaliser(u){
+    return (u || '').trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9_]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+  // Email interne généré à partir du pseudo (jamais affiché, jamais confirmé)
+  function emailGenere(u){ return u + '@archverse.app'; }
+
+  function setMode(m){
+    mode = m;
     tabLogin.classList.toggle('active', mode === 'login');
     tabSignup.classList.toggle('active', mode === 'signup');
-    // L'email n'apparaît QUE lors de la création de compte
-    emailField.style.display = mode === 'login' ? 'none' : 'block';
-    emailInput.required = mode === 'signup';
     submitBtn.textContent = mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès';
     passwordInput.autocomplete = mode === 'login' ? 'current-password' : 'new-password';
     hideMsg();
   }
-  function showMsg(text, type){
-    msgBox.textContent = text;
+  function showMsg(t, type){
+    msgBox.textContent = t;
     msgBox.className = 'msg ' + type;
   }
   function hideMsg(){
-    msgBox.className = 'msg';
     msgBox.textContent = '';
+    msgBox.className = 'msg';
   }
-  function setLoading(loading){
-    submitBtn.disabled = loading;
-    submitBtn.textContent = loading ? 'Un instant…' : (mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès');
+  function setLoading(b){
+    submitBtn.disabled = b;
+    submitBtn.textContent = b ? 'Un instant…' : (mode === 'login' ? 'Entrer dans la salle' : 'Créer mon accès');
   }
   function unlock(){
     document.body.classList.add('authed');
     if (REDIRECT_URL) window.location.href = REDIRECT_URL;
   }
-  // Le formulaire s'affiche immédiatement — jamais d'écran bloqué
-  function showForm(){
-    gateStatus.style.display = 'none';
-    form.style.display = 'block';
-  }
-  showForm();
-
   function traduireErreur(msg){
+    msg = msg || '';
     if (/duplicate key|unique constraint/i.test(msg)) return "Ce nom d'utilisateur est déjà pris.";
-    if (/does not exist/i.test(msg)) return "Table 'profiles' introuvable. Exécute le SQL fourni dans Supabase (SQL Editor).";
-    const map = {
+    var map = {
       'USERNAME_TAKEN': "Ce nom d'utilisateur est déjà pris.",
-      'UNKNOWN_USER': "Nom d'utilisateur ou mot de passe incorrect.",
       'Invalid login credentials': "Nom d'utilisateur ou mot de passe incorrect.",
-      'User already registered': 'Un compte existe déjà avec cet email.',
-      'Email not confirmed': 'Confirme ton email avant de te connecter (vérifie ta boîte mail).',
-      'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.'
+      'Email not confirmed': "Compte non confirmé. Désactive 'Confirm email' dans Supabase (Authentication → Sign In / Up) puis réessaie.",
+      'User already registered': "Ce nom d'utilisateur est déjà pris.",
+      'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 8 caractères.',
+      'Failed to fetch': 'Pas de connexion. Vérifie ta connexion internet puis recharge.'
     };
-    return map[msg] || msg || 'Une erreur est survenue, réessaie.';
+    for (var k in map){
+      if (map.hasOwnProperty(k) && msg.indexOf(k) !== -1) return map[k];
+    }
+    return msg || 'Une erreur est survenue, réessaie.';
   }
 
-  function demarrer(){
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  /* ====== BOUTONS : attachés IMMÉDIATEMENT, ils marchent toujours ====== */
+  tabLogin.addEventListener('click', function(){ setMode('login'); });
+  tabSignup.addEventListener('click', function(){ setMode('signup'); });
 
-    // Session déjà active → déverrouillage en arrière-plan
-    supabase.auth.getSession()
-      .then(({ data }) => { if (data.session) unlock(); })
-      .catch(() => {});
+  pwToggle.addEventListener('click', function(){
+    var estMdp = passwordInput.type === 'password';
+    passwordInput.type = estMdp ? 'text' : 'password';
+    pwToggle.textContent = estMdp ? 'MASQUER' : 'AFFICHER';
+  });
 
-    tabLogin.addEventListener('click', () => setMode('login'));
-    tabSignup.addEventListener('click', () => setMode('signup'));
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    hideMsg();
 
-    pwToggle.addEventListener('click', () => {
-      const isPw = passwordInput.type === 'password';
-      passwordInput.type = isPw ? 'text' : 'password';
-      pwToggle.textContent = isPw ? 'MASQUER' : 'AFFICHER';
-    });
+    if (!supabase){
+      showMsg('Supabase charge encore, réessaie dans 2 secondes.', 'error');
+      return;
+    }
 
-    logoutBtn.addEventListener('click', async () => {
-      try { await supabase.auth.signOut(); } catch (e) {}
-      document.body.classList.remove('authed');
-      form.reset();
-      hideMsg();
-      setMode('login');
-      showForm();
-    });
+    var username = normaliser(usernameInput.value);
+    var password = passwordInput.value;
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideMsg();
+    if (!username || !password){
+      showMsg("Nom d'utilisateur et mot de passe sont requis.", 'error');
+      return;
+    }
+    if (!/^[a-z0-9_]{3,20}$/.test(username)){
+      showMsg("Nom d'utilisateur : 3 à 20 caractères (lettres, chiffres, _).", 'error');
+      return;
+    }
+    if (password.length < 8){
+      showMsg('Le mot de passe doit contenir au moins 8 caractères.', 'error');
+      return;
+    }
 
-      if (!supabase){
-        showMsg('Supabase charge encore, réessaie dans 2 secondes.', 'error');
-        return;
-      }
-
-      const username = usernameInput.value.trim().toLowerCase();
-      const password = passwordInput.value;
-
-      if (!username || !password){
-        showMsg('Nom d\'utilisateur et mot de passe sont requis.', 'error');
-        return;
-      }
-      if (!/^[a-z0-9_]{3,20}$/.test(username)){
-        showMsg('Nom d\'utilisateur : 3 à 20 caractères (lettres, chiffres, _ uniquement).', 'error');
-        return;
-      }
-      if (password.length < 8){
-        showMsg('Le mot de passe doit contenir au moins 8 caractères.', 'error');
-        return;
-      }
-
-      setLoading(true);
-      try {
-        if (mode === 'login'){
-          // 1) On retrouve l'email associé au username
-          const { data: prof, error: profErr } = await supabase
-            .from('profiles')
-            .select('email')
-            .eq('username', username)
-            .maybeSingle();
-          if (profErr) throw profErr;
-          if (!prof) throw new Error('UNKNOWN_USER');
-
-          // 2) Connexion classique avec cet email
-          const { error } = await supabase.auth.signInWithPassword({ email: prof.email, password });
-          if (error) throw error;
-          showMsg('Connexion réussie. Bienvenue !', 'success'); // ✅ vert
-          setTimeout(unlock, 600);
-        } else {
-          // Création de compte : username + email + mot de passe
-          const email = emailInput.value.trim();
-          if (!email){
-            showMsg("L'email est requis pour créer un compte.", 'error');
-            setLoading(false);
-            return;
-          }
-
-          // Vérifie que le username est libre AVANT d'inscrire
-          const { data: existing } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('username', username)
-            .maybeSingle();
-          if (existing) throw new Error('USERNAME_TAKEN');
-
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: { username }, // le trigger crée le profil automatiquement
-              emailRedirectTo: REDIRECT_URL || window.location.origin
-            }
-          });
-          if (error) throw error;
-          if (data.session){
-            showMsg('Compte créé. Bienvenue !', 'success'); // ✅ vert
-            setTimeout(unlock, 600);
-          } else {
-            setMode('login'); // on repasse en Connexion d'abord…
-            showMsg('Compte créé ! Vérifie ta boîte mail, confirme ton adresse, puis connecte-toi avec ton nom d\'utilisateur.', 'success'); // ✅ vert, il ne disparaît plus
-          }
+    setLoading(true);
+    try {
+      if (mode === 'login'){
+        // 1) retrouve l'email lié au pseudo (sinon on retombe sur l'email généré)
+        var email = emailGenere(username);
+        try {
+          var res = await supabase.from('profiles').select('email').eq('username', username).maybeSingle();
+          if (res.data && res.data.email) email = res.data.email;
+        } catch (ign) {}
+        // 2) connexion
+        var login = await supabase.auth.signInWithPassword({ email: email, password: password });
+        if (login.error) throw login.error;
+        showMsg('Connexion réussie. Bienvenue !', 'success'); // ✅ vert
+        setTimeout(unlock, 500);
+      } else {
+        // création de compte : pseudo + mdp seulement
+        try {
+          var verif = await supabase.from('profiles').select('id').eq('username', username).maybeSingle();
+          if (verif.data) throw new Error('USERNAME_TAKEN');
+        } catch (err) {
+          if (err && err.message === 'USERNAME_TAKEN') throw err; // pseudo pris
+          // table absente = pas grave, on continue
         }
-      } catch (err){
-        showMsg(traduireErreur(err.message), 'error');
-      } finally {
-        setLoading(false);
+
+        var signup = await supabase.auth.signUp({
+          email: emailGenere(username),
+          password: password,
+          options: {
+            data: { username: username }, // le trigger crée le profil
+            emailRedirectTo: REDIRECT_URL || window.location.origin
+          }
+        });
+        if (signup.error) throw signup.error;
+
+        if (signup.data.session){
+          showMsg('Compte créé. Bienvenue !', 'success'); // ✅ vert
+          setTimeout(unlock, 500);
+        } else {
+          setMode('login'); // on repasse en Connexion d'abord…
+          showMsg('Compte créé ! Mais "Confirm email" est encore activé sur Supabase : désactive-le (Authentication → Sign In / Up → Email) pour un accès direct.', 'error'); // …puis le message s'affiche (et ne disparaît plus)
+        }
       }
-    });
+    } catch (err){
+      showMsg(traduireErreur(err.message), 'error');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  logoutBtn.addEventListener('click', async function(){
+    try { if (supabase) await supabase.auth.signOut(); } catch (ign) {}
+    document.body.classList.remove('authed');
+    form.reset();
+    hideMsg();
+    setMode('login');
+  });
+
+  /* ====== Démarrage Supabase (en arrière-plan, sans bloquer l'UI) ====== */
+  function initAuth(){
+    if (demarre) return;
+    demarre = true;
+    try {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // Session déjà active → on déverrouille tout seul
+      supabase.auth.getSession().then(function(res){
+        if (res && res.data && res.data.session) unlock();
+      }).catch(function(){});
+    } catch (err){
+      showMsg('Erreur de démarrage : ' + err.message, 'error');
+    }
   }
 
-  if (window.__supabaseOk) demarrer();
-  else window.__supabasePret = demarrer;
+  // Le formulaire s'affiche IMMÉDIATEMENT (plus d'écran "Vérification de session…" bloqué)
+  form.style.display = 'block';
+
+  // Filet de sécurité : on attend que la lib Supabase soit disponible
+  var essais = 0;
+  var minuteur = setInterval(function(){
+    if (window.supabase){ clearInterval(minuteur); initAuth(); }
+    else if (++essais > 50){
+      clearInterval(minuteur);
+      showMsg('Impossible de charger Supabase. Vérifie ta connexion puis recharge la page (Ctrl+F5).', 'error');
+    }
+  }, 200);
+
+  // Si la lib était déjà chargée avant ce script
+  if (window.supabase) initAuth();
+})();
 </script>
 </body>
 </html>
