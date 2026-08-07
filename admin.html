@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — ARCH'VERSE</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0b0b12; color: #eee; font-family: Arial, sans-serif; padding: 20px; }
+.centre { min-height: 90vh; display: flex; align-items: center; justify-content: center; }
+.carte { background: #15151f; border: 1px solid #2a2a3a; border-radius: 12px; padding: 28px; width: min(360px, 92vw); }
+h1 { color: #e62429; font-size: 22px; margin-bottom: 18px; text-align: center; }
+h1 span { color: #eee; }
+h2 { margin-top: 24px; font-size: 16px; color: #aaa; }
+label { display: block; margin: 10px 0 4px; font-size: 13px; color: #aaa; }
+input, select, textarea {
+  width: 100%; padding: 9px 10px; border-radius: 6px; border: 1px solid #333;
+  background: #0b0b12; color: #eee; font-size: 14px;
+}
+.btn {
+  background: #e62429; color: #fff; border: none; padding: 10px 18px;
+  border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; margin-top: 14px;
+}
+.btn:hover { background: #ff3b40; }
+.btn.gris { background: #333; }
+.btn.gris:hover { background: #444; }
+#msgLogin { margin-top: 12px; font-size: 13px; color: #f0a596; min-height: 16px; }
+.entete { display: flex; justify-content: space-between; align-items: center; }
+.row {
+  display: flex; align-items: center; gap: 12px; background: #15151f;
+  border: 1px solid #22222e; border-radius: 8px; padding: 10px; margin-bottom: 8px;
+}
+.row img { width: 40px; height: 60px; object-fit: cover; border-radius: 4px; }
+.row .info { flex: 1; }
+.del { background: none; border: 1px solid #e62429; color: #e62429; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.del:hover { background: #e62429; color: #fff; }
+.vide { color: #666; }
+.note { color: #e6a700; }
+
+#modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 50; }
+#modal.active { display: flex; align-items: center; justify-content: center; }
+#modal .boite {
+  background: #15151f; border: 1px solid #2a2a3a; border-radius: 12px;
+  padding: 24px; width: min(540px, 92vw); max-height: 90vh; overflow: auto;
+}
+#modal h2 { color: #e62429; margin-bottom: 16px; font-size: 18px; margin-top: 0; }
+.deux { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.actions { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+<!-- Écran de connexion -->
+<div class="centre" id="ecranLogin">
+  <div class="carte">
+    <h1>ARCH'VERSE <span>Admin</span></h1>
+    <label>Pseudo</label>
+    <input id="pseudo" placeholder="ton_pseudo" autocomplete="username">
+    <label>Mot de passe</label>
+    <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn" style="width:100%" id="btnLogin">Se connecter</button>
+    <p id="msgLogin"></p>
+  </div>
+</div>
+
+<!-- Écran admin -->
+<div id="ecranAdmin" style="display:none">
+  <div class="entete">
+    <h1>ARCH'VERSE <span>Admin</span></h1>
+    <button class="btn gris" id="btnLogout" style="margin-top:0">Déconnexion</button>
+  </div>
+
+  <button class="btn" id="btnAjouter">+ Ajouter un film / une série</button>
+
+  <h2>Éléments ajoutés</h2>
+  <div id="liste"></div>
+</div>
+
+<!-- Modal d'ajout -->
+<div id="modal">
+  <div class="boite">
+    <h2>Ajouter au catalogue</h2>
+
+    <label>URL du film / de la série (heiwastream.fr...)</label>
+    <input id="f_url" placeholder="https://heiwastream.fr/watch/movie/1726" oninput="detecterUrl()">
+    <button class="btn gris" style="margin-top:8px;width:100%" onclick="autoFill()" type="button">Remplir automatiquement (TMDB)</button>
+
+    <div class="deux">
+      <div>
+        <label>Type</label>
+        <select id="f_type">
+          <option value="movie">Film</option>
+          <option value="series">Série</option>
+        </select>
+      </div>
+      <div>
+        <label>Collection</label>
+        <select id="f_collection">
+          <option value="mcu">MCU</option>
+          <option value="horsmcu">Hors MCU</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Titre</label>
+    <input id="f_titre" placeholder="Ex : Iron Man">
+
+    <div class="deux">
+      <div>
+        <label>Année</label>
+        <input id="f_annee" type="number" placeholder="2026">
+      </div>
+      <div>
+        <label>Terre / univers</label>
+        <input id="f_terre" list="terres" placeholder="Terre-616">
+        <datalist id="terres">
+          <option value="Terre-616"><option value="Terre-10005">
+          <option value="Multivers"><option value="TVA / Hors temps">
+          <option value="Gotham"><option value="Terre">
+          <option value="Krypton / Terre"><option value="Atlantide">
+          <option value="Themyscira">
+        </datalist>
+      </div>
+    </div>
+
+    <label>Phase / Catégorie</label>
+    <select id="f_phase">
+      <option>Phase 1</option><option>Phase 2</option><option>Phase 3</option>
+      <option>Phase 4</option><option>Phase 5</option><option>Phase 6</option>
+      <option>DC</option><option>Sony</option><option>Fox / X-Men</option>
+      <option>Netflix</option><option>Amazon</option><option>Arrowverse</option>
+      <option>Hors MCU</option>
+    </select>
+
+    <label>Poster (URL)</label>
+    <input id="f_poster" placeholder="https://image.tmdb.org/t/p/w500/...">
+
+    <div class="deux" id="zoneSerie">
+      <div>
+        <label>Saison n°</label>
+        <input id="f_saison" type="number" value="1" min="1">
+      </div>
+      <div>
+        <label>Nombre d'épisodes</label>
+        <input id="f_nbEp" type="number" value="8" min="1">
+      </div>
+    </div>
+
+    <label>Note (optionnel)</label>
+    <input id="f_note" placeholder="Ex : pas encore disponible">
+
+    <div class="actions">
+      <button class="btn gris" onclick="fermer()" type="button">Annuler</button>
+      <button class="btn" onclick="ajouter()" type="button">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function charger(src){
+    var s = document.createElement('script');
+    s.src = src;
+    s.onerror = function(){
+      if (src.indexOf('jsdelivr') !== -1) charger('https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js');
+      else document.getElementById('msgLogin').textContent = 'Impossible de charger Supabase.';
+    };
+    document.head.appendChild(s);
+  }
+  charger('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js');
+})();
+</script>
+
+<script>
+(function(){
+'use strict';
+
+// ⚠️ À MODIFIER : ton pseudo admin (celui de TON compte sur le site)
+const ADMIN_PSEUDO = 'ton_pseudo';
+
+const SUPABASE_URL = 'https://fdycxfjaljuuaqdwmcuu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr';
+
+function $(id){ return document.getElementById(id); }
+function normaliser(u){
+  return (u||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9_]+/g,'_').replace(/^_+|_+$/g,'');
+}
+
+let supabase = null;
+let items = [];
+
+/* ---------- Connexion ---------- */
+async function connexion(){
+  const pseudo = normaliser($('pseudo').value);
+  const mdp = $('password').value;
+  if (!pseudo || !mdp){ $('msgLogin').textContent = 'Pseudo et mot de passe requis.'; return; }
+  $('btnLogin').disabled = true;
+  $('msgLogin').textContent = 'Connexion…';
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: pseudo + '@archverse.app',
+      password: mdp
+    });
+    if (error) throw error;
+    if (ADMIN_PSEUDO !== 'ton_pseudo' && normaliser(ADMIN_PSEUDO) !== pseudo){
+      $('msgLogin').textContent = "Ce compte n'est pas l'admin.";
+      await supabase.auth.signOut();
+      return;
+    }
+    $('ecranLogin').style.display = 'none';
+    $('ecranAdmin').style.display = 'block';
+    chargerItems();
+  } catch (e){
+    $('msgLogin').textContent = 'Erreur : ' + (e.message || 'connexion impossible');
+    if (/not confirmed/i.test(e.message)) $('msgLogin').textContent = 'Email non confirmé : désactive « Confirm email » dans Supabase (Authentication → Sign In / Up → Email).';
+  } finally {
+    $('btnLogin').disabled = false;
+  }
+}
+
+$('btnLogin').onclick = connexion;
+$('password').addEventListener('keydown', e => { if (e.key === 'Enter') connexion(); });
+$('btnLogout').onclick = async () => {
+  await supabase.auth.signOut();
+  location.reload();
+};
+
+/* ---------- Liste des éléments ---------- */
+async function chargerItems(){
+  const { data, error } = await supabase.from('catalogue').select('*').order('id');
+  if (error){ alert('Erreur de lecture : ' + error.message); return; }
+  items = data || [];
+  afficher();
+}
+
+function afficher(){
+  const list = $('liste');
+  list.innerHTML = items.length ? '' : '<p class="vide">Rien pour l\'instant — clique sur « Ajouter ».</p>';
+  items.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'row';
+    div.innerHTML = `
+      <img src="${it.poster || ''}" onerror="this.style.display='none'">
+      <div class="info">
+        <strong>${it.title}</strong> (${it.year}) — ${it.type === 'movie' ? 'Film' : 'Série'} — ${it.phase} — ${it.earth}
+        ${it.note ? '<br><small class="note">' + it.note + '</small>' : ''}
+      </div>
+      <button class="del" onclick="window.supprimer(${it.id})">Supprimer</button>`;
+    list.appendChild(div);
+  });
+}
+
+window.supprimer = async function(id){
+  const it = items.find(x => x.id === id);
+  if (!it || !confirm('Supprimer « ' + it.title + ' » ?')) return;
+  const { error } = await supabase.from('catalogue').delete().eq('id', id);
+  if (error){ alert('Erreur : ' + error.message); return; }
+  chargerItems();
+};
+
+/* ---------- Modal ---------- */
+$('btnAjouter').onclick = () => $('modal').classList.add('active');
+function fermer(){ $('modal').classList.remove('active'); }
+$('modal').onclick = e => { if (e.target.id === 'modal') fermer(); };
+window.fermer = fermer;
+
+function majType(){
+  $('zoneSerie').style.display = $('f_type').value === 'series' ? 'grid' : 'none';
+}
+$('f_type').onchange = majType;
+majType();
+
+$('f_collection').onchange = () => {
+  if ($('f_collection').value === 'horsmcu') $('f_phase').value = 'Hors MCU';
+};
+
+window.detecterUrl = function(){
+  const url = $('f_url').value.trim();
+  const m = url.match(/watch\/(movie|tv)\/(\d+)(?:\/s(\d+)e)?/);
+  if (!m) return;
+  $('f_type').value = m[1] === 'movie' ? 'movie' : 'series';
+  if (m[3]) $('f_saison').value = m[3];
+  majType();
+};
+
+window.autoFill = async function(){
+  let key = localStorage.getItem('tmdb_key');
+  if (!key){
+    key = prompt('Colle ta clé API TMDB (gratuite sur themoviedb.org → settings → API) :');
+    if (!key) return;
+    localStorage.setItem('tmdb_key', key);
+  }
+  const url = $('f_url').value.trim();
+  const m = url.match(/watch\/(movie|tv)\/(\d+)/);
+  if (!m){ alert('Colle d\'abord une URL du type https://heiwastream.fr/watch/movie/1726'); return; }
+  const type = m[1] === 'movie' ? 'movie' : 'tv';
+  try {
+    const r = await fetch('https://api.themoviedb.org/3/' + type + '/' + m[2] + '?api_key=' + key + '&language=fr-FR');
+    const d = await r.json();
+    if (d.success === false){ alert('Erreur TMDB : ' + (d.status_message || 'clé invalide')); return; }
+    $('f_titre').value = d.title || d.name || '';
+    $('f_annee').value = (d.release_date || d.first_air_date || '').slice(0, 4);
+    if (d.poster_path) $('f_poster').value = 'https://image.tmdb.org/t/p/w500' + d.poster_path;
+    $('f_type').value = type;
+    if (type === 'tv'){
+      const saison = parseInt($('f_saison').value) || 1;
+      const sr = await fetch('https://api.themoviedb.org/3/tv/' + m[2] + '/season/' + saison + '?api_key=' + key + '&language=fr-FR');
+      const sd = await sr.json();
+      if (sd.episodes) $('f_nbEp').value = sd.episodes.length;
+    }
+    majType();
+  } catch (e){ alert('Impossible de contacter TMDB (clé valide ?)'); }
+};
+
+window.ajouter = async function(){
+  const url = $('f_url').value.trim();
+  const type = $('f_type').value;
+  const title = $('f_titre').value.trim();
+  const year = parseInt($('f_annee').value) || new Date().getFullYear();
+  const earth = $('f_terre').value.trim() || 'Terre';
+  const phase = $('f_phase').value;
+  const collection = $('f_collection').value;
+  const poster = $('f_poster').value.trim();
+  const note = $('f_note').value.trim();
+
+  if (!url){ alert('Colle l\'URL du film / de la série.'); return; }
+  if (!title){ alert('Indique le titre (ou utilise « Remplir automatiquement »).'); return; }
+
+  const id = (url.match(/watch\/(?:movie|tv)\/(\d+)/) || [])[1];
+  const item = {
+    title, year, type, phase, earth, collection,
+    poster: poster || null,
+    note: note || null
+  };
+
+  if (type === 'movie'){
+    item.url = url;
+  } else {
+    const saison = parseInt($('f_saison').value) || 1;
+    const nbEp = parseInt($('f_nbEp').value) || 8;
+    item.episodes = Array.from({ length: nbEp }, (_, i) =>
+      ['Ép. ' + (i + 1), 'https://heiwastream.fr/watch/tv/' + id + '/s' + String(saison).padStart(2, '0') + 'e' + String(i + 1).padStart(2, '0')]);
+  }
+
+  const { error } = await supabase.from('catalogue').insert(item);
+  if (error){ alert('Erreur : ' + error.message); return; }
+  fermer();
+  chargerItems();
+  alert('« ' + title + ' » ajouté au catalogue !');
+};
+
+/* ---------- Démarrage ---------- */
+let essais = 0;
+const minuteur = setInterval(function(){
+  if (window.supabase){
+    clearInterval(minuteur);
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else if (++essais > 50){
+    clearInterval(minuteur);
+    $('msgLogin').textContent = 'Impossible de charger Supabase. Recharge la page.';
+  }
+}, 200);
+
+})();
+</script>
+</body>
+</html>

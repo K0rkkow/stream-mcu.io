@@ -270,14 +270,35 @@ function ph(title){
 }
 
 // ─── DONNÉES AJOUTÉES VIA LA PAGE DÉVELOPPEUR (admin.php → data.json) ───
+// ─── DONNÉES AJOUTÉES VIA LA PAGE DÉVELOPPEUR (Supabase) ───
 let EXTRA = [];
-let filtreActif = "mcu"; // mémorise l'onglet actif pour ne pas le perdre au chargement
+let filtreActif = "mcu";
 
-fetch("data.json")
-  .then(r => { if (!r.ok) throw new Error("pas de data.json"); return r.json(); })
-  .then(d => { EXTRA = Array.isArray(d) ? d : []; render(filtreActif); })
-  .catch(() => render(filtreActif)); // si data.json n'existe pas, on garde les données de base
+const SUPABASE_URL = 'https://fdycxfjaljuuaqdwmcuu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr';
 
+fetch(SUPABASE_URL + '/rest/v1/catalogue?select=*&order=id.asc', {
+  headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+})
+  .then(r => r.json())
+  .then(rows => {
+    if (Array.isArray(rows)) {
+      EXTRA = rows.map(l => ({
+        title: l.title,
+        year: l.year,
+        type: l.type || 'movie',
+        phase: l.phase || 'Hors MCU',
+        earth: l.earth || 'Terre',
+        collection: l.collection || 'mcu',
+        url: l.url || undefined,
+        poster: l.poster || undefined,
+        note: l.note || undefined,
+        episodes: l.episodes || undefined
+      }));
+    }
+    render(filtreActif);
+  })
+  .catch(() => render(filtreActif));
 // ─── RENDU ───
 function render(filter = filtreActif) {
   const grid = document.getElementById("grid");
