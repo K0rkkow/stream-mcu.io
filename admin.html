@@ -175,8 +175,8 @@ input, select, textarea {
 (function(){
 'use strict';
 
-// ⚠️ À MODIFIER : ton pseudo admin (celui de TON compte sur le site)
-const ADMIN_PSEUDO = 'ton_pseudo';
+// TON pseudo admin (celui de TON compte sur le site)
+const ADMIN_PSEUDO = 'admin';
 
 const SUPABASE_URL = 'https://fdycxfjaljuuaqdwmcuu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr';
@@ -202,7 +202,7 @@ async function connexion(){
       password: mdp
     });
     if (error) throw error;
-    if (ADMIN_PSEUDO !== 'ton_pseudo' && normaliser(ADMIN_PSEUDO) !== pseudo){
+    if (normaliser(ADMIN_PSEUDO) !== pseudo){
       $('msgLogin').textContent = "Ce compte n'est pas l'admin.";
       await supabase.auth.signOut();
       return;
@@ -213,6 +213,7 @@ async function connexion(){
   } catch (e){
     $('msgLogin').textContent = 'Erreur : ' + (e.message || 'connexion impossible');
     if (/not confirmed/i.test(e.message)) $('msgLogin').textContent = 'Email non confirmé : désactive « Confirm email » dans Supabase (Authentication → Sign In / Up → Email).';
+    if (/rate limit|too many requests/i.test(e.message)) $('msgLogin').textContent = 'Trop de tentatives. Attends quelques minutes puis réessaie.';
   } finally {
     $('btnLogin').disabled = false;
   }

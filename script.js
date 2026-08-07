@@ -269,7 +269,6 @@ function ph(title){
   return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
 }
 
-// ─── DONNÉES AJOUTÉES VIA LA PAGE DÉVELOPPEUR (admin.php → data.json) ───
 // ─── DONNÉES AJOUTÉES VIA LA PAGE DÉVELOPPEUR (Supabase) ───
 let EXTRA = [];
 let filtreActif = "mcu";
@@ -299,6 +298,7 @@ fetch(SUPABASE_URL + '/rest/v1/catalogue?select=*&order=id.asc', {
     render(filtreActif);
   })
   .catch(() => render(filtreActif));
+
 // ─── RENDU ───
 function render(filter = filtreActif) {
   const grid = document.getElementById("grid");
@@ -334,7 +334,7 @@ function creerCarte(item, grid) {
   card.onclick = () => handleClick(item);
 
   const img = document.createElement("img");
-  img.src = item.poster;
+  img.src = item.poster || ph(item.title);  // ← fallback direct si pas de poster
   img.alt = item.title;
   img.loading = "lazy";
   img.onerror = () => { img.onerror = null; img.src = ph(item.title); };
@@ -370,7 +370,7 @@ function openModal(item) {
   const list = document.getElementById("episodesList");
   list.innerHTML = "";
 
-  item.episodes.forEach(ep => {
+  (item.episodes || []).forEach(ep => {   // ← protection si pas d'épisodes
     const btn = document.createElement("button");
     btn.className = "episode-btn";
     btn.textContent = ep[0];
