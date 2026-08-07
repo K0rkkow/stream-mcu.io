@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <title>Admin MCU Stream</title>
@@ -50,16 +51,12 @@ cursor:pointer;
 }
 
 .delete{
-
 background:#555;
-
 }
-
 
 .hidden{
 display:none;
 }
-
 
 .film{
 
@@ -69,7 +66,6 @@ margin:10px 0;
 border-radius:10px;
 
 }
-
 
 img{
 
@@ -97,6 +93,7 @@ Connexion
 </button>
 
 </div>
+
 
 
 
@@ -129,11 +126,10 @@ Connexion
 </select>
 
 
-
 <input id="poster" placeholder="URL Poster">
 
 
-<input id="lien" placeholder="Lien officiel">
+<input id="lien" placeholder="Lien streaming">
 
 
 <textarea id="note" placeholder="Note"></textarea>
@@ -153,10 +149,9 @@ Connexion
 
 <div class="card">
 
-<h2>📚 Catalogue</h2>
+<h2>📚 Films</h2>
 
 <div id="liste"></div>
-
 
 </div>
 
@@ -173,11 +168,12 @@ Connexion
 <script>
 
 
-const SUPABASE_URL="https://fdycxfjaljuuaqdwmcuu.supabase.co";
+const SUPABASE_URL =
+"https://fdycxfjaljuuaqdwmcuu.supabase.co";
 
 
-const SUPABASE_KEY="sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr";
-
+const SUPABASE_KEY =
+"sb_publishable_M0moUWVLW2HHW70XfcCJbg_JeFvy4Kr";
 
 
 const supabaseClient =
@@ -189,32 +185,41 @@ SUPABASE_KEY
 
 
 // MOT DE PASSE ADMIN
-const ADMIN_PASSWORD="1234";
+
+const ADMIN_PASSWORD="67";
+
 
 
 
 function connexion(){
 
-let pass=
+
+let pass =
 document.getElementById("password").value;
 
 
-if(pass===ADMIN_PASSWORD){
+if(pass === ADMIN_PASSWORD){
+
 
 document.getElementById("login").style.display="none";
 
 document.getElementById("panel").style.display="block";
+
 
 chargerFilms();
 
 
 }else{
 
+
 alert("Mot de passe incorrect");
 
-}
 
 }
+
+
+}
+
 
 
 
@@ -224,34 +229,53 @@ async function ajouterFilm(){
 
 
 
-let film = {
+let film={
 
-title: document.getElementById("titre").value,
 
-year: Number(document.getElementById("annee").value),
+title:
+document.getElementById("titre").value,
 
-earth: document.getElementById("terre").value,
 
-type: document.getElementById("type").value,
+year:
+Number(document.getElementById("annee").value),
 
-poster: document.getElementById("poster").value,
 
-url: document.getElementById("lien").value,
+earth:
+document.getElementById("terre").value,
 
-note: document.getElementById("note").value
+
+type:
+document.getElementById("type").value,
+
+
+poster:
+document.getElementById("poster").value,
+
+
+url:
+document.getElementById("lien").value,
+
+
+note:
+document.getElementById("note").value
+
 
 };
 
 
+
+
 const {error}=await supabaseClient
 
-.from("catalogue")
+.from("films")
 
 .insert([film]);
 
 
 
+
 if(error){
+
 
 alert(error.message);
 
@@ -268,8 +292,10 @@ chargerFilms();
 }
 
 
-
 }
+
+
+
 
 
 
@@ -277,9 +303,10 @@ chargerFilms();
 async function chargerFilms(){
 
 
+
 const {data,error}=await supabaseClient
 
-.from("catalogue")
+.from("films")
 
 .select("*")
 
@@ -287,9 +314,10 @@ const {data,error}=await supabaseClient
 
 
 
+
 if(error){
 
-console.log(error);
+alert(error.message);
 
 return;
 
@@ -297,14 +325,17 @@ return;
 
 
 
-liste.innerHTML="";
+
+document.getElementById("liste").innerHTML="";
+
 
 
 
 data.forEach(film=>{
 
 
-liste.innerHTML+=`
+document.getElementById("liste").innerHTML += `
+
 
 <div class="film">
 
@@ -312,12 +343,14 @@ liste.innerHTML+=`
 <img src="${film.poster}">
 
 
-<h3>${film.titre}</h3>
+<h3>${film.title}</h3>
 
 
-Année : ${film.annee}<br>
+Année : ${film.year}<br>
 
 Type : ${film.type}<br>
+
+Univers : ${film.earth}<br>
 
 Note : ${film.note}
 
@@ -341,8 +374,10 @@ onclick="supprimerFilm(${film.id})">
 });
 
 
-
 }
+
+
+
 
 
 
@@ -350,12 +385,13 @@ onclick="supprimerFilm(${film.id})">
 async function supprimerFilm(id){
 
 
+
 if(confirm("Supprimer ce film ?")){
 
 
-await supabaseClient
+const {error}=await supabaseClient
 
-.from("catalogue")
+.from("films")
 
 .delete()
 
@@ -363,11 +399,20 @@ await supabaseClient
 
 
 
-chargerFilms();
+if(error){
 
+alert(error.message);
+
+}else{
+
+alert("Film supprimé !");
+
+chargerFilms();
 
 }
 
+
+}
 
 
 }
