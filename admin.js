@@ -1,4 +1,6 @@
-/* ═══ ADMIN ARCH'VERSE — admin.js ═══ */
+/* ═════════════════════════════════════════════════════════
+   ARCH'VERSE — admin.js (panneau d'administration)
+   ═════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
@@ -71,7 +73,7 @@
         alert('Erreur : ' + error.message);
       } else {
         alert('✅ "' + row.title + '" ajouté au catalogue !');
-        location.reload(); // recharge pour afficher le nouveau film
+        location.reload();
       }
     });
   }

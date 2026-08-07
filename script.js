@@ -1,7 +1,5 @@
 /* ═════════════════════════════════════════════════════════
-   ARCH'VERSE — script.js — PARTIE 1/3
-   Crée script.js avec ce contenu, puis colle la PARTIE 2
-   et la PARTIE 3 à la suite (dans l'ordre).
+   ARCH'VERSE — script.js (catalogue + recherche + rendu)
    ═════════════════════════════════════════════════════════ */
 
 // ─── GÉNÉRATEUR D'ÉPISODES ───
@@ -74,8 +72,18 @@ const MARVEL = [
   { title: "Avengers: Doomsday", year: 2026, type: "movie", phase: "Phase 6", earth: "Terre-616", url: "https://heiwastream.fr/watch/movie/1003596", poster: "https://image.tmdb.org/t/p/w500/bph5UiAOKLLjla10YuCyKWfKYGG.jpg", note: "pas encore disponible" }
 ];
 
-// ─── DONNÉES : HORS MCU — FILMS (PARTIE A) ───
-const HORS_MCU_A = [
+// ─── DONNÉES : HORS MCU ───
+const P_BOYS  = "https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg";
+const P_BB    = "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg";
+const P_GOT   = "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg";
+const P_ST    = "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg";
+const P_WIT   = "https://image.tmdb.org/t/p/w500/rhErSlk0M236rNFertVAZa9lz9S.jpg";
+const P_PEAK  = "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg";
+const P_SQ    = "https://image.tmdb.org/t/p/w500/heV89pC6pv5fz1plikfyQxYuE4L.jpg";
+const P_TLOU  = "https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg";
+
+const HORS_MCU = [
+  // ── Films DC ──
   { title: "Batman Begins", year: 2005, type: "movie", phase: "DC", earth: "Gotham", url: "https://heiwastream.fr/watch/movie/272", poster: "https://static.wikia.nocookie.net/batman/images/9/9b/Batman_Begins-413277928-large.jpg/revision/latest?cb=20260106145937" },
   { title: "The Dark Knight", year: 2008, type: "movie", phase: "DC", earth: "Gotham", url: "https://heiwastream.fr/watch/movie/155", poster: "https://i.ebayimg.com/images/g/pAEAAOSwnJph0HO~/s-l1600.webp" },
   { title: "The Dark Knight Rises", year: 2012, type: "movie", phase: "DC", earth: "Gotham", url: "https://heiwastream.fr/watch/movie/49026", poster: "https://m.media-amazon.com/images/I/91HM6470jLL.jpg" },
@@ -87,10 +95,12 @@ const HORS_MCU_A = [
   { title: "Zack Snyder's Justice League", year: 2021, type: "movie", phase: "DC", earth: "Terre", url: "https://heiwastream.fr/watch/movie/791373", poster: "https://upload.wikimedia.org/wikipedia/en/6/60/Zack_Snyder%27s_Justice_League.png" },
   { title: "The Suicide Squad", year: 2021, type: "movie", phase: "DC", earth: "Terre", url: "https://heiwastream.fr/watch/movie/436969", poster: "https://upload.wikimedia.org/wikipedia/en/0/06/The_Suicide_Squad_%28film%29_poster.jpg" },
   { title: "The Batman", year: 2022, type: "movie", phase: "DC", earth: "Gotham", url: "https://heiwastream.fr/watch/movie/414906", poster: "https://image.tmdb.org/t/p/w500/b0PlSFdDwbyK0cf5RxwDpaOJQvQ.jpg" },
+  // ── Marvel hors MCU (Sony / Fox) ──
   { title: "Logan", year: 2017, type: "movie", phase: "Fox / X-Men", earth: "2029", url: "https://heiwastream.fr/watch/movie/263115", poster: "https://upload.wikimedia.org/wikipedia/en/3/37/Logan_2017_poster.jpg" },
   { title: "Venom", year: 2018, type: "movie", phase: "Sony", earth: "San Francisco", url: "https://heiwastream.fr/watch/movie/335983", poster: "https://upload.wikimedia.org/wikipedia/en/1/10/Venom_%282018_film%29_poster.png" },
   { title: "Spider-Man: Into the Spider-Verse", year: 2018, type: "movie", phase: "Sony", earth: "Spider-Verse", url: "https://heiwastream.fr/watch/movie/324857", poster: "https://image.tmdb.org/t/p/w500/iiZZdoQBEYBv6id8su7ImL0oCbD.jpg" },
   { title: "Venom: Let There Be Carnage", year: 2021, type: "movie", phase: "Sony", earth: "San Francisco", url: "https://heiwastream.fr/watch/movie/580489", poster: "https://upload.wikimedia.org/wikipedia/en/a/a7/Venom_Let_There_Be_Carnage_poster.jpg" },
+  // ── Autres films ──
   { title: "The Godfather", year: 1972, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/238", poster: "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg" },
   { title: "Titanic", year: 1997, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/597", poster: "https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg" },
   { title: "Gladiator", year: 2000, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/98", poster: "https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg" },
@@ -98,23 +108,8 @@ const HORS_MCU_A = [
   { title: "Inception", year: 2010, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/27205", poster: "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg" },
   { title: "Interstellar", year: 2014, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/157336", poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" },
   { title: "Dune", year: 2021, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/438631", poster: "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg" },
-  { title: "Oppenheimer", year: 2023, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/872585", poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" }
-];
-/* ═════════════════════════════════════════════════════════
-   ARCH'VERSE — script.js — PARTIE 2/3 (à coller à la suite)
-   ═════════════════════════════════════════════════════════ */
-
-// ─── DONNÉES : HORS MCU — SÉRIES (PARTIE B) ───
-const P_BOYS  = "https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg";
-const P_BB    = "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizRGt.jpg";
-const P_GOT   = "https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg";
-const P_ST    = "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg";
-const P_WIT   = "https://image.tmdb.org/t/p/w500/rhErSlk0M236rNFertVAZa9lz9S.jpg";
-const P_PEAK  = "https://image.tmdb.org/t/p/w500/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg";
-const P_SQ    = "https://image.tmdb.org/t/p/w500/heV89pC6pv5fz1plikfyQxYuE4L.jpg";
-const P_TLOU  = "https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg";
-
-const HORS_MCU_B = [
+  { title: "Oppenheimer", year: 2023, type: "movie", phase: "Hors MCU", earth: "Terre", url: "https://heiwastream.fr/watch/movie/872585", poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" },
+  // ── Séries ──
   { title: "Daredevil S1", year: 2015, type: "series", phase: "Netflix", earth: "Hell's Kitchen", poster: "https://upload.wikimedia.org/wikipedia/en/1/1b/Daredevil_season_1_poster.jpg", episodes: eps(13, 61889, 1) },
   { title: "The Punisher S1", year: 2017, type: "series", phase: "Netflix", earth: "NYC", poster: "https://upload.wikimedia.org/wikipedia/en/2/21/The_Punisher_season_1_poster.jpg", episodes: eps(13, 67170, 1) },
   { title: "The Flash S1", year: 2014, type: "series", phase: "Arrowverse", earth: "Terre-1", poster: "https://upload.wikimedia.org/wikipedia/en/7/73/The_Flash_season_1.jpg", episodes: eps(23, 60735, 1) },
@@ -161,12 +156,6 @@ const HORS_MCU_B = [
   { title: "The Last of Us S2", year: 2025, type: "series", phase: "Hors MCU", earth: "Terre", poster: P_TLOU, episodes: eps(7, 100088, 2) }
 ];
 
-// ─── FUSION : toutes les données Hors MCU ───
-const HORS_MCU = [...HORS_MCU_A, ...HORS_MCU_B];
-/* ═════════════════════════════════════════════════════════
-   ARCH'VERSE — script.js — PARTIE 3/3 (à coller à la suite)
-   ═════════════════════════════════════════════════════════ */
-
 // ─── PLACEHOLDER FIABLE ───
 function ph(title) {
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='450'><rect width='100%' height='100%' fill='#0b0b12'/><text x='50%' y='47%' fill='#e62429' font-family='Arial, sans-serif' font-size='22' font-weight='bold' text-anchor='middle'>${title}</text></svg>`;
@@ -198,7 +187,7 @@ fetch(SUPABASE_URL + '/rest/v1/catalogue?select=*&order=id.asc', {
 })
 .catch(() => render(filtreActif));
 
-// ─── RENDU (avec recherche intégrée) ───
+// ─── RENDU (recherche intégrée : ne filtre QUE la section active) ───
 function render(filter = filtreActif) {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";

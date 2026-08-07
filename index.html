@@ -131,6 +131,18 @@ body:not(.authed) .theme-toggle{ display: none; }
   padding: 5px 12px; cursor: pointer; transition: all .15s ease;
 }
 .user-bar .user-logout:hover{ color: var(--accent-red); border-color: var(--accent-red); }
+.admin-btn{
+  background: var(--accent-red);
+  border: 1px solid var(--accent-red);
+  border-radius: 999px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.admin-btn:hover{ background: #ff4d63; }
 
 @media (max-width: 480px){ .gate-card{ max-width: 340px; } .user-bar{ top: 10px; right: 10px; } }
 </style>
@@ -141,12 +153,7 @@ body:not(.authed) .theme-toggle{ display: none; }
 <div class="user-bar" id="userBar">
   <span class="user-icon">⚡</span>
   <span class="user-name" id="userName">…</span>
-  <button class="user-logout" id="logoutBtn" type="button">Se déconnecter</button>
   <button class="admin-btn" id="adminBtn" type="button" style="display:none">⚙ Admin</button>
-</div>
-<div class="user-bar" id="userBar">
-  <span class="user-icon">⚡</span>
-  <span class="user-name" id="userName">…</span>
   <button class="user-logout" id="logoutBtn" type="button">Se déconnecter</button>
 </div>
 
@@ -236,6 +243,7 @@ body:not(.authed) .theme-toggle{ display: none; }
     <div class="episodes" id="episodesList"></div>
   </div>
 </div>
+
 <!-- ============ PANNEAU ADMIN ============ -->
 <div class="modal" id="adminModal">
   <div class="modal-content admin-content">
@@ -249,17 +257,22 @@ body:not(.authed) .theme-toggle{ display: none; }
       <label>Année</label>
       <input type="number" id="a-year" placeholder="2026" required />
 
-      <label>Type</label>
-      <select id="a-type">
-        <option value="movie">Film</option>
-        <option value="series">Série</option>
-      </select>
-
-      <label>Collection</label>
-      <select id="a-collection">
-        <option value="mcu">MCU</option>
-        <option value="horsmcu">Hors MCU</option>
-      </select>
+      <div class="admin-2cols">
+        <div>
+          <label>Type</label>
+          <select id="a-type">
+            <option value="movie">Film</option>
+            <option value="series">Série</option>
+          </select>
+        </div>
+        <div>
+          <label>Collection</label>
+          <select id="a-collection">
+            <option value="mcu">MCU</option>
+            <option value="horsmcu">Hors MCU</option>
+          </select>
+        </div>
+      </div>
 
       <label>Phase / Univers (ex : Phase 7, DC, Sony, Netflix…)</label>
       <input type="text" id="a-phase" placeholder="Phase 7" />
@@ -291,8 +304,9 @@ body:not(.authed) .theme-toggle{ display: none; }
 </footer>
 
 <script src="script.js"></script>
+<script src="admin.js"></script>
 
-<!-- 1) Chargement Supabase : script classique (marche en double-clic) + fallback CDN -->
+<!-- 1) Chargement Supabase : script classique + fallback CDN -->
 <script>
 (function(){
   function charger(src){
@@ -388,6 +402,9 @@ body:not(.authed) .theme-toggle{ display: none; }
     userBar.style.display = 'flex';
     afficherPseudo(user);
     document.body.classList.add('authed');
+    // ⚙️ Transmet Supabase + user à admin.js
+    window.__supabase = supabase;
+    window.dispatchEvent(new CustomEvent('archverse:auth', { detail: { user: user, supabase: supabase } }));
     if (REDIRECT_URL) window.location.href = REDIRECT_URL;
   }
 
@@ -425,6 +442,7 @@ body:not(.authed) .theme-toggle{ display: none; }
     document.body.classList.remove('authed');
     userBar.style.display = 'none';
     userName.textContent = '…';
+    $('adminBtn').style.display = 'none';
     form.reset();
     hideMsg();
     setMode('login');
@@ -552,6 +570,7 @@ body:not(.authed) .theme-toggle{ display: none; }
     document.body.classList.remove('authed');
     userBar.style.display = 'none';
     userName.textContent = '…';
+    $('adminBtn').style.display = 'none';
     form.reset();
     hideMsg();
     setMode('login');
